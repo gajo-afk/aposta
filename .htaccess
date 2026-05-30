@@ -1,0 +1,7 @@
+# Laragon / Apache — forward /api/* to the Node.js backend on port 3000
+# Requires: Apache mod_proxy enabled (Laragon → Apache → modules → proxy, proxy_http)
+# Keep "npm start" running in this folder while using the site.
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ http://wc26.test:3000/api/$1 [P,L]

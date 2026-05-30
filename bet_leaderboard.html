@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Standings — Bet Wizard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0f1c3f;
+            --blue: #1e3a6e;
+            --accent: #e8a020;
+            --accent2: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --bg: #0d1528;
+            --surface: #131f3a;
+            --card: #1a2847;
+            --border: #2a3f6a;
+            --text: #e8edf7;
+            --muted: #7a91b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(30,58,110,0.4) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(232,160,32,0.08) 0%, transparent 50%);
+        }
+        .page { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
+        .header { text-align: center; margin-bottom: 32px; }
+        .header h1 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .header h1 span { color: var(--accent); }
+        .header p { color: var(--muted); font-size: 14px; }
+        .nav-links {
+            display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap;
+        }
+        .nav-links a {
+            padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            text-decoration: none; border: 1.5px solid var(--border); color: var(--muted);
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { border-color: var(--accent2); color: var(--accent2); }
+        .nav-links a.primary { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+        .nav-links a.primary:hover { background: #2563eb; }
+
+        .points-info {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px;
+        }
+        .points-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; text-align: center;
+        }
+        .points-card .val {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 800;
+        }
+        .points-card .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+        .points-card.green .val { color: var(--green); }
+        .points-card.blue .val { color: var(--accent2); }
+        .points-card.red .val { color: var(--red); }
+
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden; margin-bottom: 24px;
+        }
+        .card-head {
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .card-head h2 {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .card-head span { font-size: 12px; color: var(--muted); }
+        .refresh-btn {
+            background: transparent; border: 1.5px solid var(--border); color: var(--muted);
+            padding: 6px 14px; border-radius: 7px; font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .refresh-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: rgba(30,58,110,0.5); }
+        th {
+            padding: 11px 14px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+            text-align: left; border-bottom: 1px solid var(--border);
+        }
+        th.center { text-align: center; }
+        td { padding: 12px 14px; font-size: 14px; border-bottom: 1px solid rgba(42,63,106,0.5); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        tr.rank-1 td { background: rgba(232,160,32,0.08); }
+        tr.rank-2 td { background: rgba(192,192,192,0.06); }
+        tr.rank-3 td { background: rgba(205,127,50,0.06); }
+
+        .rank {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 50%; font-weight: 800; font-size: 12px;
+        }
+        .rank-1 { background: linear-gradient(135deg, #fbbf24, #d97706); color: #1a1200; }
+        .rank-2 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #1f2937; }
+        .rank-3 { background: linear-gradient(135deg, #f59e0b, #b45309); color: #fff; }
+        .rank-n { background: var(--border); color: var(--muted); }
+
+        .pts { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--green); }
+        .player-name { font-weight: 700; }
+        .player-email { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .avatar {
+            width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--border); background: var(--blue);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7);
+            vertical-align: middle; margin-right: 10px;
+        }
+        .player-cell { display: flex; align-items: center; }
+
+        .empty {
+            text-align: center; padding: 48px 20px; color: var(--muted);
+        }
+        .empty div { font-size: 48px; margin-bottom: 12px; }
+        .loading { text-align: center; padding: 60px; color: var(--muted); }
+        .updated { font-size: 11px; color: var(--muted); text-align: center; margin-top: 16px; }
+
+        @media (max-width: 640px) {
+            .points-info { grid-template-columns: 1fr; }
+            th.hide-sm, td.hide-sm { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="header">
+        <h1 id="page-title">&#9917; League <span>Standings</span></h1>
+        <p id="page-subtitle">Live classification table for the prediction league</p>
+        <div class="nav-links">
+            <a href="bet_user.html" class="primary">Submit Predictions</a>
+            <a href="bet_admin.html">Admin Panel</a>
+        </div>
+    </div>
+
+    <div class="points-info">
+        <div class="points-card green">
+            <div class="val">3 pts</div>
+            <div class="lbl">Correct prediction</div>
+        </div>
+        <div class="points-card blue">
+            <div class="val">1 pt</div>
+            <div class="lbl">Wrong prediction</div>
+        </div>
+        <div class="points-card red">
+            <div class="val">0 pts</div>
+            <div class="lbl">No prediction / pending</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">
+            <div>
+                <h2>Classification Table</h2>
+                <span id="table-meta">Loading...</span>
+            </div>
+            <button class="refresh-btn" onclick="loadLeaderboard()">Refresh</button>
+        </div>
+        <div id="table-area" class="loading">Loading standings...</div>
+    </div>
+
+    <p class="updated" id="updated-at"></p>
+</div>
+
+<script src="config.js"></script>
+<script src="bet-api.js"></script>
+<script>
+    function initials(name) {
+        if (!name) return '?';
+        return name.split(' ').map(function(w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+    }
+
+    function renderTable(data) {
+        var area = document.getElementById('table-area');
+        var rankings = data.rankings || [];
+
+        document.getElementById('table-meta').textContent =
+            rankings.length + ' participant' + (rankings.length !== 1 ? 's' : '') +
+            ' · ' + Object.keys(data.results || {}).filter(function(k) { return data.results[k]; }).length + ' results set';
+
+        if (!rankings.length) {
+            area.className = 'empty';
+            area.innerHTML = '<div>&#127942;</div><p>No standings yet.<br>Be the first to submit your predictions!</p>';
+            return;
+        }
+
+        area.className = '';
+        var html = '<table><thead><tr>' +
+            '<th class="center" style="width:50px">#</th>' +
+            '<th>Player</th>' +
+            '<th class="center">Points</th>' +
+            '<th class="center hide-sm">Correct</th>' +
+            '<th class="center hide-sm">Wrong</th>' +
+            '<th class="center hide-sm">Bet</th>' +
+            '</tr></thead><tbody>';
+
+        rankings.forEach(function(u, i) {
+            var rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+            var rowCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+            var avatar = u.profilePic
+                ? '<img class="avatar" src="' + u.profilePic + '" alt="">'
+                : '<span class="avatar">' + initials(u.name) + '</span>';
+
+            html += '<tr class="' + rowCls + '">' +
+                '<td class="center"><span class="rank ' + rankCls + '">' + (i + 1) + '</span></td>' +
+                '<td><div class="player-cell">' + avatar +
+                    '<div><div class="player-name">' + u.name + '</div>' +
+                    (u.email ? '<div class="player-email">' + u.email + '</div>' : '') +
+                    '</div></div></td>' +
+                '<td class="center"><span class="pts">' + u.pts + '</span></td>' +
+                '<td class="center hide-sm" style="color:var(--green);font-weight:700">' + u.correct + '</td>' +
+                '<td class="center hide-sm" style="color:var(--red);font-weight:700">' + u.wrong + '</td>' +
+                '<td class="center hide-sm" style="color:var(--accent);font-weight:600">' + (u.bet || '—') + '</td>' +
+                '</tr>';
+        });
+
+        html += '</tbody></table>';
+        area.innerHTML = html;
+    }
+
+    function loadLeaderboard() {
+        document.getElementById('table-area').className = 'loading';
+        document.getElementById('table-area').textContent = 'Loading standings...';
+
+        BetAPI.getLeaderboard()
+            .then(function(data) {
+                var name = (data.settings && data.settings.name) || 'Soccer Betting Wizard';
+                document.title = 'League Standings — ' + name;
+                document.getElementById('page-title').innerHTML =
+                    '&#9917; ' + name.replace(' ', ' <span>').replace(/(\w+)$/, '$1</span>') + ' <span>Standings</span>';
+                renderTable(data);
+                document.getElementById('updated-at').textContent =
+                    'Last updated: ' + new Date(data.updatedAt || Date.now()).toLocaleString() +
+                    ' · Auto-refreshes every 30 seconds';
+            })
+            .catch(function(err) {
+                document.getElementById('table-area').className = 'empty';
+                document.getElementById('table-area').innerHTML =
+                    '<div>&#9888;</div><p>Could not load standings.<br>' + err.message +
+                    '<br><br>Make sure the server is running (<code>npm start</code>).</p>';
+            });
+    }
+
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 30000);
+</script>
+</body>
+</html>
