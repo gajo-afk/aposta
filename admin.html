@@ -301,6 +301,13 @@
         .login-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, var(--blue), var(--navy)); color: #fff; border: none; border-radius: 9px; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; margin-top: 8px; transition: all 0.2s; }
         .login-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
         .login-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; background: rgba(239,68,68,0.1); padding: 8px 12px; border-radius: 7px; }
+        @keyframes shake {
+            0%,100%{transform:translateX(0);}
+            20%{transform:translateX(-8px);}
+            40%{transform:translateX(8px);}
+            60%{transform:translateX(-6px);}
+            80%{transform:translateX(6px);}
+        }
 
         /* ===== TOAST ===== */
         .toast {
@@ -316,6 +323,81 @@
         .toast.success { border-color: var(--green); background: rgba(22,163,74,0.2); color: #86efac; }
         .toast.error   { border-color: var(--red);   background: rgba(239,68,68,0.15); color: #fca5a5; }
         .toast.info    { border-color: var(--accent2); background: rgba(59,130,246,0.15); color: #93c5fd; }
+
+        /* ===== PROFILE PICTURE IN TOPBAR ===== */
+        .topbar-user { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; position:relative; }
+        .topbar-avatar {
+            width:34px; height:34px; border-radius:50%; overflow:hidden;
+            border:2px solid var(--border-light); flex-shrink:0;
+            background:linear-gradient(135deg,var(--blue),var(--accent));
+            display:flex; align-items:center; justify-content:center;
+            font-size:13px; font-weight:800; color:#fff; transition:border-color 0.2s;
+        }
+        .topbar-avatar img { width:100%; height:100%; object-fit:cover; display:none; }
+        .topbar-avatar:hover { border-color:var(--accent2); }
+        .profile-dropdown {
+            position:absolute; top:calc(100% + 10px); right:0; min-width:220px;
+            background:var(--card); border:1px solid var(--border); border-radius:12px;
+            box-shadow:0 8px 28px rgba(0,0,0,0.4); z-index:200; display:none; overflow:hidden;
+            animation:dropIn 0.2s ease;
+        }
+        @keyframes dropIn { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
+        .profile-dropdown.open { display:block; }
+        .profile-dropdown-head {
+            padding:16px; text-align:center; border-bottom:1px solid var(--border);
+            background:linear-gradient(135deg,var(--surface),var(--card));
+        }
+        .profile-pic-wrap {
+            width:64px; height:64px; border-radius:50%; overflow:hidden; margin:0 auto 8px;
+            border:3px solid var(--border-light); position:relative; cursor:pointer;
+            background:linear-gradient(135deg,var(--blue),var(--accent));
+            display:flex; align-items:center; justify-content:center;
+        }
+        .profile-pic-wrap img { width:100%; height:100%; object-fit:cover; display:none; }
+        .profile-pic-wrap .pic-overlay {
+            position:absolute; inset:0; background:rgba(0,0,0,0.5); display:none;
+            align-items:center; justify-content:center; font-size:18px; border-radius:50%;
+        }
+        .profile-pic-wrap:hover .pic-overlay { display:flex; }
+        .profile-pic-initial { font-size:22px; font-weight:800; color:#fff; }
+        .profile-pic-input { display:none; }
+        .profile-dropdown-head strong { display:block; font-size:14px; font-weight:700; color:var(--text); }
+        .profile-dropdown-head span { font-size:12px; color:var(--muted); }
+        .profile-dropdown-item {
+            display:flex; align-items:center; gap:10px; padding:10px 16px;
+            font-size:13px; font-weight:600; color:var(--muted); cursor:pointer;
+            transition:background 0.15s; border:none; background:none; width:100%; text-align:left;
+        }
+        .profile-dropdown-item:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+        .profile-dropdown-item svg { width:15px; height:15px; flex-shrink:0; }
+        .profile-dropdown-item.danger { color:rgba(239,68,68,0.8); }
+        .profile-dropdown-item.danger:hover { background:rgba(239,68,68,0.08); color:var(--red); }
+        .profile-divider { height:1px; background:var(--border); margin:4px 0; }
+
+        /* ===== DATETIME PICKER ===== */
+        input[type="datetime-local"] {
+            background:var(--input-bg); border:1.5px solid var(--border);
+            color:var(--text); padding:9px 12px; border-radius:8px;
+            font-size:14px; font-family:'Barlow',sans-serif;
+            width:100%; transition:border 0.2s;
+            color-scheme:dark;
+        }
+        input[type="datetime-local"]:focus { border-color:var(--accent2); outline:none; box-shadow:0 0 0 3px rgba(59,130,246,0.15); }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter:invert(0.7) sepia(1) hue-rotate(180deg); cursor:pointer; }
+
+        /* ===== LEAGUE SELECT ===== */
+        select.league-select {
+            background:var(--input-bg); border:1.5px solid var(--border);
+            color:var(--text); padding:9px 12px; border-radius:8px;
+            font-size:14px; font-family:'Barlow',sans-serif; width:100%;
+            cursor:pointer; transition:border 0.2s; appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a91b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat:no-repeat; background-position:right 12px center;
+            padding-right:32px;
+        }
+        select.league-select:focus { border-color:var(--accent2); outline:none; box-shadow:0 0 0 3px rgba(59,130,246,0.15); }
+        select.league-select option { background:var(--card); color:var(--text); }
+        select.league-select optgroup { font-weight:700; color:var(--accent); background:var(--surface); }
 
         @media (max-width: 768px) {
             .sidebar { display: none; }
@@ -343,7 +425,7 @@
             <input type="password" id="login-pass" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
         </div>
         <button class="login-btn" onclick="doLogin()">Sign In</button>
-        <div class="login-error" id="login-error">Invalid credentials. Try admin / admin123</div>
+        <div class="login-error" id="login-error">Invalid username or password. Please try again.</div>
     </div>
 </div>
 
@@ -356,9 +438,36 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         Open User Form
     </a>
-    <div class="topbar-user">
-        <div class="avatar">A</div>
+    <div class="topbar-user" id="topbar-user-btn" onclick="toggleProfileDropdown()">
+        <div class="topbar-avatar" id="topbar-avatar">
+            <img id="topbar-avatar-img" src="" alt="">
+            <span id="topbar-avatar-initial">A</span>
+        </div>
         <span id="admin-name-label">Admin</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profile-dropdown">
+            <div class="profile-dropdown-head">
+                <div class="profile-pic-wrap" id="profile-pic-wrap" onclick="event.stopPropagation(); document.getElementById('profile-pic-input').click()">
+                    <img id="profile-pic-img" src="" alt="">
+                    <span class="profile-pic-initial" id="profile-pic-initial">A</span>
+                    <div class="pic-overlay">&#128247;</div>
+                </div>
+                <input type="file" class="profile-pic-input" id="profile-pic-input" accept="image/*" onchange="uploadProfilePic(this)">
+                <strong id="profile-dropdown-name">Admin</strong>
+                <span>Administrator</span>
+            </div>
+            <button class="profile-dropdown-item" onclick="event.stopPropagation(); document.getElementById('profile-pic-input').click()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Change Profile Photo
+            </button>
+            <div class="profile-divider"></div>
+            <button class="profile-dropdown-item danger" onclick="event.stopPropagation(); doLogout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign Out
+            </button>
+        </div>
     </div>
 </div>
 
@@ -374,8 +483,12 @@
                 <span class="sidebar-count active" id="sidebar-match-count">0</span>
             </button>
             <button class="sidebar-item" onclick="showSection('config')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 0 0 4.93 4.93"/><path d="M4.93 19.07A10 10 0 0 0 19.07 19.07"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                 Import / Export
+            </button>
+            <button class="sidebar-item" onclick="showSection('settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                Settings
             </button>
         </div>
         <div class="sidebar-section">
@@ -445,11 +558,91 @@
                         </div>
                         <div class="form-group">
                             <label>League</label>
-                            <input type="text" id="new-league" placeholder="e.g. Premier League">
+                            <select class="league-select" id="new-league">
+                                <optgroup label="🌍 International">
+                                    <option value="FIFA World Cup 2026" selected>🏆 FIFA World Cup 2026</option>
+                                    <option value="UEFA Champions League">⭐ UEFA Champions League</option>
+                                    <option value="UEFA Europa League">UEFA Europa League</option>
+                                    <option value="UEFA Nations League">UEFA Nations League</option>
+                                    <option value="CONMEBOL Copa América">CONMEBOL Copa América</option>
+                                    <option value="AFC Asian Cup">AFC Asian Cup</option>
+                                    <option value="CAF Africa Cup of Nations">CAF Africa Cup of Nations</option>
+                                    <option value="CONCACAF Gold Cup">CONCACAF Gold Cup</option>
+                                    <option value="FIFA Club World Cup">FIFA Club World Cup</option>
+                                </optgroup>
+                                <optgroup label="🏴󠁧󠁢󠁥󠁮󠁧󠁿 England">
+                                    <option value="Premier League">Premier League</option>
+                                    <option value="EFL Championship">EFL Championship</option>
+                                    <option value="FA Cup">FA Cup</option>
+                                    <option value="EFL Cup">EFL Cup</option>
+                                </optgroup>
+                                <optgroup label="🇪🇸 Spain">
+                                    <option value="La Liga">La Liga</option>
+                                    <option value="Copa del Rey">Copa del Rey</option>
+                                    <option value="La Liga 2">La Liga 2</option>
+                                </optgroup>
+                                <optgroup label="🇩🇪 Germany">
+                                    <option value="Bundesliga">Bundesliga</option>
+                                    <option value="2. Bundesliga">2. Bundesliga</option>
+                                    <option value="DFB-Pokal">DFB-Pokal</option>
+                                </optgroup>
+                                <optgroup label="🇮🇹 Italy">
+                                    <option value="Serie A">Serie A</option>
+                                    <option value="Coppa Italia">Coppa Italia</option>
+                                    <option value="Serie B">Serie B</option>
+                                </optgroup>
+                                <optgroup label="🇫🇷 France">
+                                    <option value="Ligue 1">Ligue 1</option>
+                                    <option value="Coupe de France">Coupe de France</option>
+                                    <option value="Ligue 2">Ligue 2</option>
+                                </optgroup>
+                                <optgroup label="🇵🇹 Portugal">
+                                    <option value="Primeira Liga">Primeira Liga</option>
+                                    <option value="Taça de Portugal">Taça de Portugal</option>
+                                </optgroup>
+                                <optgroup label="🇳🇱 Netherlands">
+                                    <option value="Eredivisie">Eredivisie</option>
+                                </optgroup>
+                                <optgroup label="🇧🇪 Belgium">
+                                    <option value="Belgian Pro League">Belgian Pro League</option>
+                                </optgroup>
+                                <optgroup label="🇹🇷 Turkey">
+                                    <option value="Süper Lig">Süper Lig</option>
+                                </optgroup>
+                                <optgroup label="🇷🇺 Russia">
+                                    <option value="Russian Premier League">Russian Premier League</option>
+                                </optgroup>
+                                <optgroup label="🌎 Americas">
+                                    <option value="MLS">MLS (USA)</option>
+                                    <option value="Liga MX">Liga MX (Mexico)</option>
+                                    <option value="Brasileirão Série A">Brasileirão Série A</option>
+                                    <option value="Argentine Primera División">Argentine Primera División</option>
+                                    <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asia & Oceania">
+                                    <option value="J1 League">J1 League (Japan)</option>
+                                    <option value="K League 1">K League 1 (South Korea)</option>
+                                    <option value="Chinese Super League">Chinese Super League</option>
+                                    <option value="A-League">A-League (Australia)</option>
+                                    <option value="AFC Champions League">AFC Champions League</option>
+                                </optgroup>
+                                <optgroup label="🌍 Southeast Asia">
+                                    <option value="AFF Championship">AFF Championship (ASEAN)</option>
+                                    <option value="Thailand League 1">Thailand League 1</option>
+                                    <option value="Indonesia Liga 1">Indonesia Liga 1</option>
+                                    <option value="Vietnam V.League 1">Vietnam V.League 1</option>
+                                    <option value="Philippines Football League">Philippines Football League</option>
+                                    <option value="Timor-Leste National League">🇹🇱 Timor-Leste National League</option>
+                                </optgroup>
+                                <optgroup label="➕ Other">
+                                    <option value="Friendly">International Friendly</option>
+                                    <option value="Custom">Custom / Other</option>
+                                </optgroup>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>Match Date</label>
-                            <input type="text" id="new-date" placeholder="DD/MM/YYYY">
+                            <label>Match Date &amp; Time</label>
+                            <input type="datetime-local" id="new-date">
                         </div>
                         <div class="form-row-full">
                             <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Team Logos (optional)</label>
@@ -542,7 +735,7 @@
                         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;text-align:center">
                             <div style="font-size:36px;margin-bottom:10px">&#11015;</div>
                             <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px">Export Config</h3>
-                            <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Download all current matches as a <code style="background:var(--input-bg);padding:1px 5px;border-radius:4px;font-size:12px">.json</code> file. Import it on another device or save as backup.</p>
+                            <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Download all current matches as a <code style="background:var(--input-bg);padding:1px 5px;border-radius:4px;font-size:12px">.json</code> file.</p>
                             <button class="btn btn-amber" onclick="exportConfig()" style="width:100%;justify-content:center">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 Export bet-wizard-config.json
@@ -551,7 +744,7 @@
                         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;text-align:center">
                             <div style="font-size:36px;margin-bottom:10px">&#11014;</div>
                             <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;text-transform:uppercase;color:var(--text);margin-bottom:8px">Import Config</h3>
-                            <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Load a previously exported <code style="background:var(--input-bg);padding:1px 5px;border-radius:4px;font-size:12px">.json</code> config file. This will <strong style="color:var(--red)">replace</strong> your current match list.</p>
+                            <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Load a previously exported <code style="background:var(--input-bg);padding:1px 5px;border-radius:4px;font-size:12px">.json</code> config. This will <strong style="color:var(--red)">replace</strong> the current match list.</p>
                             <button class="btn btn-secondary" onclick="document.getElementById('import-file2').click()" style="width:100%;justify-content:center">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 Choose JSON File
@@ -565,6 +758,78 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- ===== SETTINGS SECTION ===== -->
+        <div id="section-settings" style="display:none">
+
+            <!-- System Branding -->
+            <div class="section-card">
+                <div class="section-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--accent)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    <div><h2>System Branding</h2><p>System name, logo and contact info shown on the user form and PDF</p></div>
+                    <button class="btn btn-primary btn-sm" onclick="saveSettings()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save All Settings
+                    </button>
+                </div>
+                <div class="section-body">
+                    <div class="form-grid">
+                        <div class="form-group form-row-full">
+                            <label>System Name</label>
+                            <input type="text" id="cfg-name" placeholder="e.g. Soccer Betting Wizard" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp Number (with country code, no +)</label>
+                            <input type="text" id="cfg-wa" placeholder="e.g. 67077416502">
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Email Address</label>
+                            <input type="email" id="cfg-email" placeholder="e.g. admin@example.com">
+                        </div>
+                    </div>
+                    <!-- System Logo -->
+                    <div style="margin-top:16px">
+                        <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">System Logo (shown on PDF header)</label>
+                        <div style="display:flex;align-items:center;gap:16px">
+                            <div class="logo-upload-box" style="width:120px;flex-shrink:0" onclick="document.getElementById('cfg-logo-input').click()">
+                                <input type="file" id="cfg-logo-input" accept="image/*" onchange="previewSysLogo(this)">
+                                <img id="cfg-logo-preview" class="logo-preview" style="width:60px;height:60px" alt="">
+                                <div id="cfg-logo-icon" class="logo-icon">&#127942;</div>
+                                <p>Click to upload</p>
+                            </div>
+                            <div style="flex:1;font-size:13px;color:var(--muted);line-height:1.6">
+                                Upload your system logo (PNG or JPG recommended).<br>
+                                It will appear in the top-left corner of the PDF alongside the system name.<br>
+                                <span style="color:var(--accent);font-weight:600">Recommended: 200×200px square PNG with transparent background.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="section-card">
+                <div class="section-head">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--accent2)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <div><h2>Terms &amp; Conditions</h2><p>Displayed to users on Step 1 of the betting wizard</p></div>
+                </div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label>Terms &amp; Conditions Text</label>
+                        <textarea id="cfg-terms" rows="14" style="width:100%;background:var(--input-bg);border:1.5px solid var(--border);color:var(--text);padding:12px 14px;border-radius:8px;font-size:13px;font-family:'Barlow',sans-serif;line-height:1.7;resize:vertical;transition:border 0.2s;" placeholder="Enter your terms and conditions here..."></textarea>
+                        <p style="font-size:11px;color:var(--muted);margin-top:6px">Separate paragraphs with a blank line. Each paragraph will be displayed as a numbered item.</p>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:flex-end">
+                        <button class="btn btn-secondary btn-sm" onclick="resetTerms()">Reset to Default</button>
+                        <button class="btn btn-primary btn-sm" onclick="saveSettings()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -590,11 +855,75 @@
                 </div>
                 <div class="form-group">
                     <label>League</label>
-                    <input type="text" id="edit-league" placeholder="League">
+                    <select class="league-select" id="edit-league">
+                        <optgroup label="🌍 International">
+                            <option value="FIFA World Cup 2026">🏆 FIFA World Cup 2026</option>
+                            <option value="UEFA Champions League">⭐ UEFA Champions League</option>
+                            <option value="UEFA Europa League">UEFA Europa League</option>
+                            <option value="UEFA Nations League">UEFA Nations League</option>
+                            <option value="CONMEBOL Copa América">CONMEBOL Copa América</option>
+                            <option value="AFC Asian Cup">AFC Asian Cup</option>
+                            <option value="CAF Africa Cup of Nations">CAF Africa Cup of Nations</option>
+                            <option value="CONCACAF Gold Cup">CONCACAF Gold Cup</option>
+                            <option value="FIFA Club World Cup">FIFA Club World Cup</option>
+                        </optgroup>
+                        <optgroup label="🏴󠁧󠁢󠁥󠁮󠁧󠁿 England">
+                            <option value="Premier League">Premier League</option>
+                            <option value="EFL Championship">EFL Championship</option>
+                            <option value="FA Cup">FA Cup</option>
+                            <option value="EFL Cup">EFL Cup</option>
+                        </optgroup>
+                        <optgroup label="🇪🇸 Spain">
+                            <option value="La Liga">La Liga</option>
+                            <option value="Copa del Rey">Copa del Rey</option>
+                        </optgroup>
+                        <optgroup label="🇩🇪 Germany">
+                            <option value="Bundesliga">Bundesliga</option>
+                            <option value="2. Bundesliga">2. Bundesliga</option>
+                        </optgroup>
+                        <optgroup label="🇮🇹 Italy">
+                            <option value="Serie A">Serie A</option>
+                            <option value="Coppa Italia">Coppa Italia</option>
+                        </optgroup>
+                        <optgroup label="🇫🇷 France">
+                            <option value="Ligue 1">Ligue 1</option>
+                            <option value="Coupe de France">Coupe de France</option>
+                        </optgroup>
+                        <optgroup label="🇵🇹 Portugal">
+                            <option value="Primeira Liga">Primeira Liga</option>
+                        </optgroup>
+                        <optgroup label="🇳🇱 Netherlands">
+                            <option value="Eredivisie">Eredivisie</option>
+                        </optgroup>
+                        <optgroup label="🌎 Americas">
+                            <option value="MLS">MLS (USA)</option>
+                            <option value="Liga MX">Liga MX (Mexico)</option>
+                            <option value="Brasileirão Série A">Brasileirão Série A</option>
+                            <option value="Argentine Primera División">Argentine Primera División</option>
+                            <option value="CONMEBOL Libertadores">CONMEBOL Libertadores</option>
+                        </optgroup>
+                        <optgroup label="🌏 Asia & Oceania">
+                            <option value="J1 League">J1 League (Japan)</option>
+                            <option value="K League 1">K League 1</option>
+                            <option value="A-League">A-League (Australia)</option>
+                            <option value="AFC Champions League">AFC Champions League</option>
+                        </optgroup>
+                        <optgroup label="🌍 Southeast Asia">
+                            <option value="AFF Championship">AFF Championship</option>
+                            <option value="Thailand League 1">Thailand League 1</option>
+                            <option value="Indonesia Liga 1">Indonesia Liga 1</option>
+                            <option value="Vietnam V.League 1">Vietnam V.League 1</option>
+                            <option value="Timor-Leste National League">🇹🇱 Timor-Leste National League</option>
+                        </optgroup>
+                        <optgroup label="➕ Other">
+                            <option value="Friendly">International Friendly</option>
+                            <option value="Custom">Custom / Other</option>
+                        </optgroup>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label>Date</label>
-                    <input type="text" id="edit-date" placeholder="DD/MM/YYYY">
+                    <label>Match Date &amp; Time</label>
+                    <input type="datetime-local" id="edit-date">
                 </div>
                 <div class="form-row-full">
                     <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Team Logos</label>
@@ -630,20 +959,38 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    // ===== AUTH =====
+    // ===== AUTH (SHA-256 hashed password) =====
+    // Hash of 'admin123' using SHA-256
     const ADMIN_USER = 'admin';
-    const ADMIN_PASS = 'admin123';
+    const ADMIN_PASS_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
     const STORAGE_KEY = 'betWizardMatches';
+    const PROFILE_KEY = 'betWizardAdminProfile';
 
-    function doLogin() {
+    async function hashPassword(pass) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function doLogin() {
         const u = document.getElementById('login-user').value.trim();
         const p = document.getElementById('login-pass').value;
-        if (u === ADMIN_USER && p === ADMIN_PASS) {
+        const hashed = await hashPassword(p);
+        if (u === ADMIN_USER && hashed === ADMIN_PASS_HASH) {
             document.getElementById('login-overlay').style.display = 'none';
             document.getElementById('admin-name-label').textContent = u;
+            document.getElementById('profile-dropdown-name').textContent = u;
+            document.getElementById('topbar-avatar-initial').textContent = u.charAt(0).toUpperCase();
+            document.getElementById('profile-pic-initial').textContent = u.charAt(0).toUpperCase();
             sessionStorage.setItem('bwAdminAuth', '1');
+            sessionStorage.setItem('bwAdminUser', u);
+            loadProfilePic();
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            const err = document.getElementById('login-error');
+            err.style.display = 'block';
+            // Shake animation
+            const box = document.querySelector('.login-box');
+            box.style.animation = 'shake 0.4s ease';
+            setTimeout(function(){ box.style.animation = ''; }, 400);
         }
     }
     document.getElementById('login-pass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
@@ -651,16 +998,65 @@
 
     function doLogout() {
         sessionStorage.removeItem('bwAdminAuth');
+        sessionStorage.removeItem('bwAdminUser');
         document.getElementById('login-overlay').style.display = 'flex';
         document.getElementById('login-error').style.display = 'none';
         document.getElementById('login-user').value = '';
         document.getElementById('login-pass').value = '';
+        document.getElementById('profile-dropdown').classList.remove('open');
     }
 
     // Check if already logged in
     if (sessionStorage.getItem('bwAdminAuth') === '1') {
         document.getElementById('login-overlay').style.display = 'none';
+        var savedUser = sessionStorage.getItem('bwAdminUser') || 'Admin';
+        document.getElementById('admin-name-label').textContent = savedUser;
+        document.getElementById('profile-dropdown-name').textContent = savedUser;
+        document.getElementById('topbar-avatar-initial').textContent = savedUser.charAt(0).toUpperCase();
+        document.getElementById('profile-pic-initial').textContent = savedUser.charAt(0).toUpperCase();
+        loadProfilePic();
     }
+
+    // ===== PROFILE PICTURE =====
+    function loadProfilePic() {
+        var saved = localStorage.getItem(PROFILE_KEY);
+        if (saved) {
+            applyProfilePic(saved);
+        }
+    }
+
+    function applyProfilePic(src) {
+        var topImg = document.getElementById('topbar-avatar-img');
+        var topInit = document.getElementById('topbar-avatar-initial');
+        var picImg = document.getElementById('profile-pic-img');
+        var picInit = document.getElementById('profile-pic-initial');
+        topImg.src = src; topImg.style.display = 'block'; topInit.style.display = 'none';
+        picImg.src = src; picImg.style.display = 'block'; picInit.style.display = 'none';
+    }
+
+    function uploadProfilePic(input) {
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var src = e.target.result;
+            localStorage.setItem(PROFILE_KEY, src);
+            applyProfilePic(src);
+            showToast('Profile photo updated!', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ===== PROFILE DROPDOWN TOGGLE =====
+    function toggleProfileDropdown() {
+        document.getElementById('profile-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        var btn = document.getElementById('topbar-user-btn');
+        if (btn && !btn.contains(e.target)) {
+            document.getElementById('profile-dropdown').classList.remove('open');
+        }
+    });
 
     // ===== DATA =====
     let matchesData = [];
@@ -742,16 +1138,30 @@
     }
 
     // ===== ADD MATCH =====
+    function formatDatetime(dtVal) {
+        if (!dtVal) return '—';
+        var dt = new Date(dtVal);
+        if (isNaN(dt)) return dtVal;
+        var day = String(dt.getDate()).padStart(2,'0');
+        var mon = String(dt.getMonth()+1).padStart(2,'0');
+        var yr  = dt.getFullYear();
+        var hr  = String(dt.getHours()).padStart(2,'0');
+        var min = String(dt.getMinutes()).padStart(2,'0');
+        return day+'/'+mon+'/'+yr+' '+hr+':'+min;
+    }
+
     function addMatch() {
         const h = document.getElementById('new-home').value.trim();
         const a = document.getElementById('new-away').value.trim();
-        const l = document.getElementById('new-league').value.trim();
-        const d = document.getElementById('new-date').value.trim();
+        const l = document.getElementById('new-league').value;
+        const d = document.getElementById('new-date').value;
         if (!h || !a) { showToast('Please enter both team names.', 'error'); return; }
         matchesData.push({
             id: 'match' + matchCounter++,
             homeTeam: h, awayTeam: a,
-            league: l || '—', date: d || '—',
+            league: l || 'FIFA World Cup 2026',
+            date: formatDatetime(d),
+            dateRaw: d,
             homeLogo: logoTemp.home, awayLogo: logoTemp.away
         });
         saveMatches();
@@ -760,9 +1170,10 @@
     }
 
     function clearAddForm() {
-        ['new-home','new-away','new-league','new-date'].forEach(function(id){
-            document.getElementById(id).value = '';
-        });
+        document.getElementById('new-home').value = '';
+        document.getElementById('new-away').value = '';
+        document.getElementById('new-league').value = 'FIFA World Cup 2026';
+        document.getElementById('new-date').value = '';
         logoTemp = { home: '', away: '' };
         var hp = document.getElementById('home-logo-preview');
         var ap = document.getElementById('away-logo-preview');
@@ -809,8 +1220,12 @@
         editLogoTemp = { home: m.homeLogo || null, away: m.awayLogo || null };
         document.getElementById('edit-home').value = m.homeTeam;
         document.getElementById('edit-away').value = m.awayTeam;
-        document.getElementById('edit-league').value = m.league === '—' ? '' : m.league;
-        document.getElementById('edit-date').value = m.date === '—' ? '' : m.date;
+        // Set league dropdown - try to match existing value, fallback to first option
+        var leagueSel = document.getElementById('edit-league');
+        leagueSel.value = m.league;
+        if (!leagueSel.value) leagueSel.value = 'FIFA World Cup 2026';
+        // Set datetime-local from raw value if stored, else leave blank
+        document.getElementById('edit-date').value = m.dateRaw || '';
 
         // Set logo previews
         var hPrev = document.getElementById('edit-home-preview');
@@ -837,11 +1252,13 @@
         if (!h || !a) { showToast('Please enter both team names.', 'error'); return; }
         const idx = matchesData.findIndex(function(m){ return m.id === editingId; });
         if (idx < 0) return;
+        const rawDate = document.getElementById('edit-date').value;
         matchesData[idx] = {
             id: editingId,
             homeTeam: h, awayTeam: a,
-            league: document.getElementById('edit-league').value.trim() || '—',
-            date:   document.getElementById('edit-date').value.trim() || '—',
+            league: document.getElementById('edit-league').value || 'FIFA World Cup 2026',
+            date: formatDatetime(rawDate) || matchesData[idx].date,
+            dateRaw: rawDate || matchesData[idx].dateRaw || '',
             homeLogo: editLogoTemp.home !== null ? editLogoTemp.home : matchesData[idx].homeLogo,
             awayLogo: editLogoTemp.away !== null ? editLogoTemp.away : matchesData[idx].awayLogo
         };
@@ -941,14 +1358,89 @@
         reader.readAsText(file);
     }
 
+    // ===== SETTINGS STORAGE KEY =====
+    const SETTINGS_KEY = 'betWizardSettings';
+
+    const DEFAULT_TERMS = `You must be 18 years or older to place bets on our platform.
+All provided personal information must be accurate and up-to-date.
+The betting is for entertainment purposes only.
+Predictions can be submitted until 1 hour before the match starts.
+Each user is allowed only one submission per match.
+The platform administrators reserve the right to cancel or modify bets under suspicious circumstances.
+By using this service, you agree that your personal data may be processed for the purposes of managing your account and providing the service.
+Users are responsible for keeping their account information secure.
+Winnings may be subject to taxation depending on your jurisdiction.
+The platform is not responsible for any losses incurred through betting activities.
+The platform reserves the right to update these terms and conditions at any time.
+Disputes will be resolved according to the laws of the jurisdiction where the platform operates.
+The platform may use cookies to enhance user experience.
+Users engaging in fraudulent activities will be permanently banned from the platform.
+Any attempt to manipulate the system or results will result in immediate account termination.`;
+
+    var sysLogoData = '';
+
+    function loadSettings() {
+        try {
+            var s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            document.getElementById('cfg-name').value  = s.name  || 'Soccer Betting Wizard';
+            document.getElementById('cfg-wa').value    = s.wa    || '67077416502';
+            document.getElementById('cfg-email').value = s.email || 'asaumartins@gmail.com';
+            document.getElementById('cfg-terms').value = s.terms || DEFAULT_TERMS;
+            if (s.logo) {
+                sysLogoData = s.logo;
+                var img = document.getElementById('cfg-logo-preview');
+                img.src = s.logo; img.style.display = 'block';
+                document.getElementById('cfg-logo-icon').style.display = 'none';
+            }
+        } catch(e) {}
+    }
+
+    function saveSettings() {
+        var s = {
+            name:  document.getElementById('cfg-name').value.trim()  || 'Soccer Betting Wizard',
+            wa:    document.getElementById('cfg-wa').value.trim()    || '67077416502',
+            email: document.getElementById('cfg-email').value.trim() || 'asaumartins@gmail.com',
+            terms: document.getElementById('cfg-terms').value.trim() || DEFAULT_TERMS,
+            logo:  sysLogoData
+        };
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+        showToast('Settings saved!', 'success');
+    }
+
+    function resetTerms() {
+        if (confirm('Reset Terms & Conditions to default?')) {
+            document.getElementById('cfg-terms').value = DEFAULT_TERMS;
+            showToast('Terms reset to default.', 'info');
+        }
+    }
+
+    function previewSysLogo(input) {
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            sysLogoData = e.target.result;
+            var img = document.getElementById('cfg-logo-preview');
+            img.src = sysLogoData; img.style.display = 'block';
+            document.getElementById('cfg-logo-icon').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
     // ===== SECTIONS =====
     function showSection(name) {
-        document.getElementById('section-matches').style.display = name === 'matches' ? '' : 'none';
-        document.getElementById('section-config').style.display  = name === 'config'  ? '' : 'none';
+        document.getElementById('section-matches').style.display  = name === 'matches'  ? '' : 'none';
+        document.getElementById('section-config').style.display   = name === 'config'   ? '' : 'none';
+        document.getElementById('section-settings').style.display = name === 'settings' ? '' : 'none';
         document.querySelectorAll('.sidebar-item').forEach(function(el, i) {
-            el.classList.toggle('active', (name === 'matches' && i === 0) || (name === 'config' && i === 1));
+            el.classList.toggle('active',
+                (name === 'matches'  && i === 0) ||
+                (name === 'config'   && i === 1) ||
+                (name === 'settings' && i === 2)
+            );
         });
-        if (name === 'config') updateConfigPreview();
+        if (name === 'config')   updateConfigPreview();
+        if (name === 'settings') loadSettings();
     }
 
     function updateConfigPreview() {
@@ -969,6 +1461,7 @@
     loadMatches();
     renderTable();
     updateStats();
+    loadSettings();
 </script>
 </body>
 </html>
