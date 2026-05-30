@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Betting Wizard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy:#0f1c3f; --blue:#1e3a6e; --accent:#e8a020; --accent2:#3b82f6;
+            --green:#22c55e; --red:#ef4444; --bg:#f0f3fa; --border:#dce3f0;
+            --text:#1e293b; --muted:#64748b;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Barlow',sans-serif;background:var(--bg);
+            background-image:url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1600&q=80');
+            background-size:cover;background-position:center;background-attachment:fixed;
+            min-height:100vh;color:var(--text);}
+        body::before{content:'';position:fixed;inset:0;background:rgba(10,18,45,0.72);z-index:0;}
+        .container{position:relative;z-index:1;max-width:820px;margin:36px auto;padding:36px 32px;
+            background:rgba(255,255,255,0.97);border-radius:18px;box-shadow:0 10px 50px rgba(0,0,0,0.38);}
+        h1{font-family:'Barlow Condensed',sans-serif;text-align:center;font-size:2.1rem;font-weight:700;
+            color:var(--navy);letter-spacing:1px;margin-bottom:28px;text-transform:uppercase;}
+        h1 span{color:var(--accent);}
+
+        /* STEP INDICATOR */
+        .step-indicator{display:flex;justify-content:space-between;margin-bottom:42px;position:relative;}
+        .step-indicator::before{content:'';position:absolute;top:16px;left:0;width:100%;height:3px;background:var(--border);z-index:1;}
+        .step-indicator::after{content:'';position:absolute;top:16px;left:0;height:3px;
+            background:linear-gradient(90deg,var(--green),var(--accent2));z-index:1;
+            transition:width 0.4s ease;width:var(--progress,0%);}
+        .step{width:34px;height:34px;border-radius:50%;background:var(--border);
+            display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+            color:#888;position:relative;z-index:2;border:3px solid white;transition:all 0.35s;
+            font-family:'Barlow Condensed',sans-serif;}
+        .step.active{background:var(--blue);color:#fff;transform:scale(1.12);box-shadow:0 0 0 4px rgba(30,58,110,0.15);}
+        .step.completed{background:var(--green);color:#fff;}
+        .step-label{position:absolute;top:40px;left:50%;transform:translateX(-50%);font-size:10px;
+            font-weight:600;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:0.5px;}
+        .step.active .step-label{color:var(--blue);}
+        .step.completed .step-label{color:var(--green);}
+
+        /* FORM STEP */
+        .form-step{display:none;animation:fadeIn 0.35s;}
+        .form-step.active{display:block;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+        .form-step h2{font-family:'Barlow Condensed',sans-serif;font-size:1.45rem;font-weight:700;
+            color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:22px;
+            padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+        .form-step h2 .step-num{width:28px;height:28px;background:var(--navy);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0;}
+
+        /* FORM ELEMENTS */
+        .form-group{margin-bottom:20px;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        label{display:block;margin-bottom:6px;font-weight:600;font-size:13px;color:var(--blue);}
+        input[type="text"],input[type="email"],input[type="tel"],select{
+            width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+            font-size:14px;font-family:'Barlow',sans-serif;transition:border 0.2s;background:#fafbff;color:var(--text);}
+        input:focus,select:focus{border-color:var(--accent2);outline:none;box-shadow:0 0 0 3px rgba(59,130,246,0.12);}
+        .error-msg{color:var(--red);font-size:12px;margin-top:5px;display:none;
+            padding:5px 10px;background:#fff0f0;border-radius:5px;border-left:3px solid var(--red);}
+        .phone-wrap{display:flex;}
+        .phone-code{padding:10px 12px;background:#f0f3fa;border:1.5px solid var(--border);
+            border-right:none;border-radius:8px 0 0 8px;font-weight:700;font-size:14px;
+            color:var(--blue);white-space:nowrap;}
+        .phone-input{border-radius:0 8px 8px 0!important;}
+
+        /* TERMS */
+        .terms-box{max-height:260px;overflow-y:auto;border:1.5px solid var(--border);
+            padding:16px;margin-bottom:16px;background:#f8faff;border-radius:10px;
+            font-size:13.5px;line-height:1.75;}
+        .terms-box p{margin-bottom:8px;}
+        .agree-row{display:flex;align-items:center;gap:12px;padding:13px 16px;
+            background:#f0f6ff;border-radius:9px;border:1.5px solid #bfdbfe;}
+        .agree-row input{transform:scale(1.25);accent-color:var(--blue);}
+        .agree-row label{margin:0;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;}
+
+        /* BET AMOUNT STEP */
+        .amount-intro{font-size:14px;color:var(--muted);margin-bottom:22px;
+            padding:12px 16px;background:#f8faff;border-radius:9px;border-left:4px solid var(--accent2);}
+        .amount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+        .amount-card{border:2px solid var(--border);border-radius:14px;padding:18px 12px;
+            text-align:center;cursor:pointer;transition:all 0.2s;background:white;position:relative;}
+        .amount-card:hover{border-color:var(--accent2);background:#f0f6ff;transform:translateY(-2px);}
+        .amount-card.selected{border-color:var(--accent);background:linear-gradient(135deg,#fffbeb,#fef3c7);
+            box-shadow:0 4px 16px rgba(232,160,32,0.25);}
+        .amount-card input[type="radio"]{display:none;}
+        .amount-val{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;
+            color:var(--navy);line-height:1;}
+        .amount-label{font-size:12px;font-weight:600;color:var(--muted);margin-top:4px;text-transform:uppercase;}
+        .amount-card.selected .amount-val{color:var(--accent);}
+        .amount-card.selected .amount-label{color:#92400e;}
+        .amount-card .check-badge{position:absolute;top:8px;right:8px;width:20px;height:20px;
+            background:var(--accent);border-radius:50%;display:none;align-items:center;
+            justify-content:center;font-size:11px;color:#fff;font-weight:900;}
+        .amount-card.selected .check-badge{display:flex;}
+        .selected-amount-display{text-align:center;padding:16px;background:linear-gradient(135deg,var(--navy),var(--blue));
+            border-radius:12px;color:#fff;margin-top:8px;display:none;}
+        .selected-amount-display.show{display:block;}
+        .selected-amount-display .big{font-family:'Barlow Condensed',sans-serif;font-size:2.4rem;
+            font-weight:800;color:var(--accent);line-height:1;}
+        .selected-amount-display p{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;}
+        .err-amount{color:var(--red);font-size:13px;text-align:center;display:none;
+            padding:8px;background:#fff0f0;border-radius:7px;margin-top:8px;}
+
+        /* MATCH TABLE */
+        .no-matches-msg{text-align:center;padding:36px 20px;background:#f8faff;
+            border-radius:12px;border:1.5px dashed var(--border);color:var(--muted);}
+        .no-matches-msg div{font-size:40px;margin-bottom:10px;}
+        .matches-wrap{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+        .matches-table{width:100%;border-collapse:collapse;}
+        .matches-table thead tr{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);}
+        .matches-table thead th{padding:9px 10px;font-size:11px;font-weight:700;
+            font-family:'Barlow Condensed',sans-serif;letter-spacing:0.8px;text-transform:uppercase;
+            color:rgba(255,255,255,0.9);border-bottom:2px solid rgba(255,255,255,0.12);}
+        .matches-table thead th:first-child{text-align:left;padding-left:14px;}
+        .matches-table thead th:not(:first-child){text-align:center;}
+        .match-row{height:36px;border-bottom:1px solid var(--border);transition:background 0.12s;}
+        .match-row:last-child{border-bottom:none;}
+        .match-row:nth-child(even){background:#f8faff;}
+        .match-row:hover{background:#edf3ff;}
+        .match-row td{padding:4px 10px;font-size:13px;vertical-align:middle;}
+        .match-row td:not(:first-child){text-align:center;}
+        .teams-cell{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;}
+        .team-logo{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+        .team-logo-placeholder{width:22px;height:22px;border-radius:50%;background:var(--border);
+            flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);font-weight:700;}
+        .vs-sep{color:var(--muted);font-weight:700;font-size:11px;flex-shrink:0;}
+        .league-badge{display:inline-block;padding:1px 7px;border-radius:20px;
+            background:#e8f0fe;color:var(--blue);font-size:11px;font-weight:600;}
+        .date-text{color:var(--muted);font-size:12px;}
+        .pred-cell input[type="radio"]{display:none;}
+        .pred-cell label{display:block;width:30px;height:23px;border-radius:5px;cursor:pointer;
+            border:1.5px solid var(--border);background:#fff;text-align:center;line-height:21px;
+            font-size:11px;font-weight:700;color:var(--muted);margin:0 auto;transition:all 0.15s;}
+        .pred-cell label:hover{border-color:var(--accent2);color:var(--accent2);background:#edf3ff;}
+        .pred-cell.home  input:checked+label{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px rgba(34,197,94,0.35);}
+        .pred-cell.draw  input:checked+label{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(232,160,32,0.35);}
+        .pred-cell.away  input:checked+label{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 2px 6px rgba(239,68,68,0.35);}
+        .pred-hint{font-size:12px;color:var(--muted);margin-bottom:12px;}
+        .pred-progress{height:5px;background:var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;}
+        .pred-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent2),var(--green));
+            border-radius:10px;transition:width 0.3s ease;width:0%;}
+
+        /* BUTTONS */
+        .btn-group{display:flex;justify-content:space-between;margin-top:30px;gap:10px;}
+        .btn{padding:11px 24px;border:none;border-radius:9px;cursor:pointer;font-size:14px;
+            font-weight:600;font-family:'Barlow',sans-serif;transition:all 0.25s;
+            box-shadow:0 2px 6px rgba(0,0,0,0.1);display:flex;align-items:center;gap:7px;}
+        .btn-prev{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+        .btn-prev:hover{background:var(--border);}
+        .btn-next,.btn-submit{background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff;}
+        .btn-next:hover,.btn-submit:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,0,0,0.2);}
+        .btn:disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed;transform:none;box-shadow:none;}
+
+        /* PROFILE PICTURE UPLOAD */
+        .profile-upload-wrap{display:flex;align-items:center;gap:20px;padding:18px;
+            background:#f0f6ff;border:1.5px solid #bfdbfe;border-radius:12px;margin-bottom:22px;}
+        .profile-pic-ring{position:relative;flex-shrink:0;cursor:pointer;}
+        .profile-pic-circle{width:80px;height:80px;border-radius:50%;border:3px solid var(--blue);
+            object-fit:cover;display:block;background:linear-gradient(135deg,var(--navy),var(--blue));
+            overflow:hidden;display:flex;align-items:center;justify-content:center;}
+        .profile-pic-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+        .profile-pic-initials{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;
+            color:rgba(255,255,255,0.6);pointer-events:none;user-select:none;}
+        .profile-pic-overlay{position:absolute;inset:0;background:rgba(30,58,110,0.55);
+            border-radius:50%;display:flex;align-items:center;justify-content:center;
+            opacity:0;transition:opacity 0.2s;color:#fff;font-size:22px;}
+        .profile-pic-ring:hover .profile-pic-overlay{opacity:1;}
+        .profile-pic-ring input[type="file"]{display:none;}
+        .profile-upload-text{flex:1;}
+        .profile-upload-text strong{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+        .profile-upload-text p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+        .profile-upload-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+            background:var(--blue);color:#fff;border:none;border-radius:7px;font-size:12px;
+            font-weight:700;font-family:'Barlow',sans-serif;cursor:pointer;transition:background 0.2s;}
+        .profile-upload-btn:hover{background:var(--navy);}
+        .profile-upload-badge{display:inline-block;margin-top:6px;padding:3px 10px;
+            background:#dcfce7;color:#15803d;border-radius:20px;font-size:11px;font-weight:700;display:none;}
+
+        /* SUMMARY PROFILE */
+        .summary-profile-row{display:flex;align-items:center;gap:16px;padding:14px 0 16px;
+            border-bottom:1px dashed var(--border);margin-bottom:4px;}
+        .summary-profile-pic{width:60px;height:60px;border-radius:50%;object-fit:cover;
+            border:2.5px solid var(--blue);flex-shrink:0;display:none;background:linear-gradient(135deg,var(--navy),var(--blue));}
+        .summary-profile-initial{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));
+            flex-shrink:0;display:flex;align-items:center;justify-content:center;
+            font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:rgba(255,255,255,0.7);}
+        .summary-profile-info{flex:1;}
+        .summary-profile-info .name{font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;
+            font-weight:800;color:var(--navy);line-height:1.1;}
+        .summary-profile-info .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+        .summary-section h3{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:700;
+            text-transform:uppercase;color:var(--navy);border-bottom:2px solid var(--border);
+            padding-bottom:8px;margin-bottom:14px;}
+        .summary-row{display:flex;justify-content:space-between;align-items:center;
+            padding:7px 0;border-bottom:1px dashed var(--border);font-size:14px;}
+        .summary-row:last-child{border-bottom:none;}
+        .summary-label{font-weight:600;color:var(--blue);min-width:150px;}
+        .summary-amount-badge{display:inline-flex;align-items:center;gap:6px;
+            background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;
+            padding:5px 16px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;
+            font-size:1.2rem;font-weight:800;}
+        .summary-amount-badge span{color:var(--accent);}
+        .prediction-table{width:100%;border-collapse:collapse;}
+        .prediction-table th,.prediction-table td{border:1px solid var(--border);padding:8px 10px;text-align:center;font-size:13px;}
+        .prediction-table thead tr:first-child th{background:var(--navy);color:white;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;}
+        .prediction-table thead tr:last-child th{background:var(--blue);color:rgba(255,255,255,0.9);font-weight:600;font-size:11px;text-transform:uppercase;}
+        .prediction-table tbody tr:nth-child(even){background:#f5f8ff;}
+        .prediction-table tbody tr:hover{background:#edf3ff;}
+        .prediction-table .col-home{text-align:right;font-weight:700;color:var(--navy);min-width:90px;}
+        .prediction-table .col-away{text-align:left;font-weight:700;color:var(--navy);min-width:90px;}
+        .prediction-table .col-vs{font-weight:700;color:var(--muted);font-size:11px;width:24px;padding:8px 4px;}
+        .prediction-table .col-date{color:var(--muted);font-size:12px;white-space:nowrap;}
+        .prediction-table .pred-cell-sum{width:52px;background:#fafbff;}
+        .prediction-table .pred-x{font-weight:900;font-size:18px;background:#fff0f0 !important;color:var(--red) !important;}
+
+        .download-btn{display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;background:linear-gradient(135deg,#d97706,var(--accent));
+            color:white;padding:13px;border-radius:9px;text-decoration:none;
+            font-weight:700;font-size:14px;margin-top:16px;
+            transition:all 0.25s;box-shadow:0 3px 10px rgba(232,160,32,0.3);}
+        .download-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(232,160,32,0.4);}
+
+        /* SUBMIT MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(10,18,45,0.75);
+            display:none;z-index:1000;align-items:center;justify-content:center;
+            backdrop-filter:blur(4px);padding:16px;}
+        .modal-overlay.open{display:flex;}
+        .modal{background:#fff;border-radius:20px;width:520px;max-width:100%;
+            box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:modalIn 0.28s ease;overflow:hidden;}
+        @keyframes modalIn{from{opacity:0;transform:scale(0.93) translateY(16px);}to{opacity:1;transform:scale(1) translateY(0);}}
+        .modal-hero{background:linear-gradient(135deg,var(--navy),var(--blue));
+            padding:24px 28px 20px;text-align:center;}
+        .modal-hero .icon{font-size:46px;margin-bottom:8px;}
+        .modal-hero h2{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;
+            color:#fff;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+        .modal-hero p{color:rgba(255,255,255,0.7);font-size:13px;}
+        .modal-ref{display:inline-block;margin-top:8px;background:rgba(255,255,255,0.15);
+            border:1px solid rgba(255,255,255,0.25);padding:4px 14px;border-radius:20px;
+            font-family:monospace;font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px;}
+
+        /* PDF ready banner */
+        .pdf-ready-banner{margin:0;padding:12px 20px;background:linear-gradient(90deg,#f0fdf4,#dcfce7);
+            border-bottom:1px solid #bbf7d0;display:flex;align-items:center;gap:10px;}
+        .pdf-ready-banner .pr-icon{font-size:22px;flex-shrink:0;}
+        .pdf-ready-banner .pr-text{flex:1;}
+        .pdf-ready-banner .pr-text strong{display:block;font-size:13px;font-weight:700;color:#15803d;}
+        .pdf-ready-banner .pr-text span{font-size:12px;color:#166534;}
+        .pdf-ready-banner .pr-dl{background:#15803d;color:#fff;border:none;border-radius:7px;
+            padding:6px 14px;font-size:12px;font-weight:700;font-family:'Barlow',sans-serif;
+            cursor:pointer;white-space:nowrap;transition:background 0.2s;display:flex;align-items:center;gap:5px;}
+        .pdf-ready-banner .pr-dl:hover{background:#166534;}
+
+        .modal-body{padding:18px 24px 20px;}
+        .attach-notice{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;
+            background:#fffbeb;border:1.5px solid #fde68a;border-radius:9px;margin-bottom:16px;}
+        .attach-notice .an-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+        .attach-notice p{font-size:13px;color:#92400e;line-height:1.5;margin:0;}
+        .attach-notice strong{color:#78350f;}
+        .send-options{display:flex;flex-direction:column;gap:10px;}
+        .send-btn{display:flex;align-items:center;gap:12px;padding:14px 18px;
+            border-radius:13px;border:2px solid var(--border);background:#fff;
+            cursor:pointer;transition:all 0.2s;text-decoration:none;color:var(--text);}
+        .send-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.1);}
+        .send-btn.whatsapp{border-color:#22c55e;}
+        .send-btn.whatsapp:hover{background:#f0fdf4;border-color:#16a34a;}
+        .send-btn.email{border-color:var(--accent2);}
+        .send-btn.email:hover{background:#eff6ff;border-color:#2563eb;}
+        .send-btn .sb-icon{width:42px;height:42px;border-radius:11px;
+            display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+        .send-btn.whatsapp .sb-icon{background:#dcfce7;}
+        .send-btn.email .sb-icon{background:#dbeafe;}
+        .send-btn .sb-text{flex:1;}
+        .send-btn .sb-text strong{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:1px;}
+        .send-btn .sb-text span{font-size:12px;color:var(--muted);}
+        .send-btn .sb-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;
+            white-space:nowrap;margin-left:auto;}
+        .send-btn.whatsapp .sb-badge{background:#dcfce7;color:#15803d;}
+        .send-btn.email .sb-badge{background:#dbeafe;color:#1d4ed8;}
+        .modal-divider{text-align:center;color:var(--muted);font-size:11px;font-weight:600;
+            text-transform:uppercase;letter-spacing:0.8px;margin:4px 0;position:relative;}
+        .modal-divider::before,.modal-divider::after{content:'';position:absolute;top:50%;
+            width:42%;height:1px;background:var(--border);}
+        .modal-divider::before{left:0;}.modal-divider::after{right:0;}
+        .modal-footer{padding:14px 24px;border-top:1px solid var(--border);text-align:center;}
+        .modal-footer button{background:none;border:none;color:var(--muted);font-size:13px;
+            cursor:pointer;text-decoration:underline;font-family:'Barlow',sans-serif;}
+        .modal-footer button:hover{color:var(--text);}
+
+        /* SUCCESS */
+        .success-msg{text-align:center;padding:44px 0;display:none;}
+        .success-msg .icon{font-size:70px;margin-bottom:18px;}
+        .success-msg h2{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;
+            text-transform:uppercase;color:var(--navy);margin-bottom:10px;}
+        .success-msg p{color:var(--muted);font-size:14px;margin-bottom:5px;}
+        .success-msg .ref{display:inline-block;margin-top:12px;padding:8px 20px;
+            background:#f0f6ff;border-radius:8px;font-weight:700;color:var(--blue);font-size:13px;
+            font-family:monospace;letter-spacing:1px;}
+        .success-sent{margin-top:16px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+        .sent-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;
+            border-radius:20px;font-size:13px;font-weight:600;}
+        .sent-badge.wa{background:#dcfce7;color:#15803d;}
+        .sent-badge.em{background:#dbeafe;color:#1d4ed8;}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);
+            color:#fff;padding:12px 18px;border-radius:9px;font-size:13px;font-weight:600;
+            opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;
+            max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+        .toast.show{opacity:1;transform:translateY(0);}
+        .toast.error{background:var(--red);}
+        .toast.success{background:#15803d;}
+
+        @media(max-width:600px){
+            .container{margin:12px;padding:22px 16px;}
+            .form-row{grid-template-columns:1fr;}
+            .amount-grid{grid-template-columns:repeat(2,1fr);}
+            .teams-cell span:not(.vs-sep){max-width:65px;overflow:hidden;text-overflow:ellipsis;}
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>&#9917; Soccer Betting <span>Wizard</span></h1>
+
+    <!-- 5-step indicator -->
+    <div class="step-indicator" id="step-indicator" style="--progress:0%">
+        <div class="step active" id="step-dot-1">1<span class="step-label">Terms</span></div>
+        <div class="step"        id="step-dot-2">2<span class="step-label">Info</span></div>
+        <div class="step"        id="step-dot-3">3<span class="step-label">Bet</span></div>
+        <div class="step"        id="step-dot-4">4<span class="step-label">Predict</span></div>
+        <div class="step"        id="step-dot-5">5<span class="step-label">Review</span></div>
+    </div>
+
+    <form id="betting-form" onsubmit="return false">
+
+        <!-- STEP 1: Terms -->
+        <div class="form-step active" id="form-step-1">
+            <h2><span class="step-num">1</span> Terms &amp; Conditions</h2>
+            <div class="terms-box">
+                <p><strong>Please read these terms carefully before proceeding:</strong></p>
+                <p>1. You must be 18 years or older to place bets on our platform.</p>
+                <p>2. All provided personal information must be accurate and up-to-date.</p>
+                <p>3. The betting is for entertainment purposes only.</p>
+                <p>4. Predictions can be submitted until 1 hour before the match starts.</p>
+                <p>5. Each user is allowed only one submission per match.</p>
+                <p>6. The platform administrators reserve the right to cancel or modify bets under suspicious circumstances.</p>
+                <p>7. By using this service, you agree that your personal data may be processed for the purposes of managing your account and providing the service.</p>
+                <p>8. Users are responsible for keeping their account information secure.</p>
+                <p>9. Winnings may be subject to taxation depending on your jurisdiction.</p>
+                <p>10. The platform is not responsible for any losses incurred through betting activities.</p>
+                <p>11. The platform reserves the right to update these terms and conditions at any time.</p>
+                <p>12. Disputes will be resolved according to the laws of the jurisdiction where the platform operates.</p>
+                <p>13. The platform may use cookies to enhance user experience.</p>
+                <p>14. Users engaging in fraudulent activities will be permanently banned from the platform.</p>
+                <p>15. Any attempt to manipulate the system or results will result in immediate account termination.</p>
+            </div>
+            <div class="form-group">
+                <div class="agree-row">
+                    <input type="checkbox" id="terms-agree" onchange="document.getElementById('btn-to-2').disabled=!this.checked">
+                    <label for="terms-agree">I have read and agree to the Terms &amp; Conditions</label>
+                </div>
+            </div>
+            <div class="btn-group">
+                <span></span>
+                <button class="btn btn-next" id="btn-to-2" disabled onclick="goTo(2)">
+                    Next
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Personal Info -->
+        <div class="form-step" id="form-step-2">
+            <h2><span class="step-num">2</span> Personal Information</h2>
+
+            <!-- Profile Picture Upload -->
+            <div class="profile-upload-wrap">
+                <div class="profile-pic-ring" onclick="document.getElementById('user-pic-input').click()">
+                    <div class="profile-pic-circle" id="user-pic-circle">
+                        <img id="user-pic-img" src="" alt="Profile">
+                        <span class="profile-pic-initials" id="user-pic-initials">?</span>
+                    </div>
+                    <div class="profile-pic-overlay">&#128247;</div>
+                    <input type="file" id="user-pic-input" accept="image/*" onchange="handleUserPicUpload(this)">
+                </div>
+                <div class="profile-upload-text">
+                    <strong>Profile Photo</strong>
+                    <p>Upload a photo to personalise your submission.<br>It will appear on your summary and PDF.</p>
+                    <button type="button" class="profile-upload-btn" onclick="document.getElementById('user-pic-input').click()">
+                        &#128247; Choose Photo
+                    </button>
+                    <span class="profile-upload-badge" id="user-pic-badge">&#10003; Photo uploaded</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="full-name">Full Name <span style="color:var(--red)">*</span></label>
+                    <input type="text" id="full-name" placeholder="Your full name" autocomplete="name">
+                    <div class="error-msg" id="err-name">Please enter your full name.</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address <span style="color:var(--red)">*</span></label>
+                    <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+                    <div class="error-msg" id="err-email">Please enter a valid email address.</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number <span style="color:var(--red)">*</span></label>
+                    <div class="phone-wrap">
+                        <span class="phone-code">&#127481;&#127473; +670</span>
+                        <input type="tel" id="phone" class="phone-input" placeholder="8-digit number" maxlength="8" pattern="[0-9]{8}" autocomplete="tel">
+                    </div>
+                    <div class="error-msg" id="err-phone">Please enter a valid 8-digit phone number.</div>
+                </div>
+                <div class="form-group">
+                    <label for="identity-number">Identity / BI Number <span style="color:var(--red)">*</span></label>
+                    <input type="text" id="identity-number" placeholder="National ID number">
+                    <div class="error-msg" id="err-id">Please enter your identity number.</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="address">Address <span style="color:var(--red)">*</span></label>
+                <input type="text" id="address" placeholder="Street, Suburb, City / Village" autocomplete="street-address">
+                <div class="error-msg" id="err-address">Please enter your address.</div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="goTo(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
+                <button class="btn btn-next" onclick="validateStep2AndGo()">
+                    Next
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Bet Amount -->
+        <div class="form-step" id="form-step-3">
+            <h2><span class="step-num">3</span> Choose Bet Amount</h2>
+            <div class="amount-intro">
+                &#128176; Select the amount of money you would like to bet on this round. Your chosen amount will appear on your prediction summary.
+            </div>
+            <div class="amount-grid" id="amount-grid">
+                <label class="amount-card" id="card-1">
+                    <input type="radio" name="bet-amount" value="1" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$1</div>
+                    <div class="amount-label">One Dollar</div>
+                </label>
+                <label class="amount-card" id="card-5">
+                    <input type="radio" name="bet-amount" value="5" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$5</div>
+                    <div class="amount-label">Five Dollars</div>
+                </label>
+                <label class="amount-card" id="card-10">
+                    <input type="radio" name="bet-amount" value="10" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$10</div>
+                    <div class="amount-label">Ten Dollars</div>
+                </label>
+                <label class="amount-card" id="card-20">
+                    <input type="radio" name="bet-amount" value="20" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$20</div>
+                    <div class="amount-label">Twenty Dollars</div>
+                </label>
+                <label class="amount-card" id="card-50">
+                    <input type="radio" name="bet-amount" value="50" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$50</div>
+                    <div class="amount-label">Fifty Dollars</div>
+                </label>
+                <label class="amount-card" id="card-100">
+                    <input type="radio" name="bet-amount" value="100" onchange="selectAmount(this)">
+                    <div class="check-badge">&#10003;</div>
+                    <div class="amount-val">$100</div>
+                    <div class="amount-label">One Hundred</div>
+                </label>
+            </div>
+            <div class="selected-amount-display" id="amount-display">
+                <div class="big" id="amount-display-val"></div>
+                <p>Selected bet amount &#8212; you can change this before submitting</p>
+            </div>
+            <div class="err-amount" id="err-amount">Please select a bet amount to continue.</div>
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="goTo(2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
+                <button class="btn btn-next" onclick="validateStep3AndGo()">
+                    Next &#8212; Predict Matches
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Predictions -->
+        <div class="form-step" id="form-step-4">
+            <h2><span class="step-num">4</span> Match Predictions</h2>
+            <div class="pred-hint">Select <strong>H</strong> (Home Win), <strong>D</strong> (Draw), or <strong>A</strong> (Away Win) for every match.</div>
+            <div class="pred-progress"><div class="pred-progress-bar" id="pred-bar"></div></div>
+            <div id="matches-area"></div>
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="goTo(3)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
+                <button class="btn btn-next" onclick="validateStep4AndGo()">
+                    Review
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 5: Summary / Review -->
+        <div class="form-step" id="form-step-5">
+            <h2><span class="step-num">5</span> Review &amp; Submit</h2>
+            <div class="summary-section">
+                <h3>&#128100; Personal Information</h3>
+                <!-- Profile photo row -->
+                <div class="summary-profile-row">
+                    <img class="summary-profile-pic" id="sum-profile-pic" src="" alt="">
+                    <div class="summary-profile-initial" id="sum-profile-initial">?</div>
+                    <div class="summary-profile-info">
+                        <div class="name" id="sum-profile-name">—</div>
+                        <div class="sub" id="sum-profile-sub">—</div>
+                    </div>
+                </div>
+                <div class="summary-row"><span class="summary-label">Full Name</span><span id="sum-name"></span></div>
+                <div class="summary-row"><span class="summary-label">Email</span><span id="sum-email"></span></div>
+                <div class="summary-row"><span class="summary-label">Phone</span><span id="sum-phone"></span></div>
+                <div class="summary-row"><span class="summary-label">Identity Number</span><span id="sum-id"></span></div>
+                <div class="summary-row"><span class="summary-label">Address</span><span id="sum-address"></span></div>
+                <div class="summary-row">
+                    <span class="summary-label">Bet Amount</span>
+                    <span id="sum-amount-badge"></span>
+                </div>
+            </div>
+            <div class="summary-section">
+                <h3>&#9917; Match Predictions</h3>
+                <table class="prediction-table">
+                    <thead>
+                        <tr>
+                            <th colspan="3">Match</th>
+                            <th rowspan="2">Date</th>
+                            <th colspan="3">Predictions</th>
+                        </tr>
+                        <tr>
+                            <th>Home Team</th>
+                            <th style="width:24px"></th>
+                            <th>Away Team</th>
+                            <th style="width:52px">Home</th>
+                            <th style="width:52px">Draw</th>
+                            <th style="width:52px">Away</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sum-preds"></tbody>
+                </table>
+            </div>
+            <a href="#" class="download-btn" id="btn-pdf">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Summary as PDF
+            </a>
+            <div class="btn-group">
+                <button class="btn btn-prev" onclick="goTo(4)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
+                <button class="btn btn-submit" onclick="openSubmitModal()">
+                    Submit Predictions
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- Success -->
+    <div class="success-msg" id="success-msg">
+        <div class="icon">&#9989;</div>
+        <h2>Predictions Submitted!</h2>
+        <p>Thank you! Your predictions have been recorded successfully.</p>
+        <p>A confirmation has been sent via your chosen channel.</p>
+        <div class="ref" id="success-ref">REF: —</div>
+        <div class="success-sent" id="success-sent"></div>
+    </div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="modal-overlay" id="submit-modal">
+    <div class="modal">
+        <div class="modal-hero">
+            <div class="icon">&#127942;</div>
+            <h2>Submit Your Prediction</h2>
+            <p>Your PDF has been generated and downloaded automatically</p>
+            <div class="modal-ref" id="modal-ref-display">REF: —</div>
+        </div>
+
+        <!-- PDF ready banner -->
+        <div class="pdf-ready-banner">
+            <div class="pr-icon">&#128196;</div>
+            <div class="pr-text">
+                <strong>&#10003; PDF Summary Downloaded</strong>
+                <span>Check your Downloads folder &mdash; attach it when sending below</span>
+            </div>
+            <button class="pr-dl" onclick="redownloadPDF()">
+                &#8681; Re-download
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Attach instruction -->
+            <div class="attach-notice">
+                <div class="an-icon">&#128073;</div>
+                <p><strong>Attach the PDF to your message.</strong> After tapping an option below, open your Downloads folder, find the PDF file, and attach it to the message before sending.</p>
+            </div>
+            <div class="send-options">
+                <a id="btn-whatsapp" href="#" class="send-btn whatsapp" target="_blank" onclick="markSent('whatsapp')">
+                    <div class="sb-icon">&#128242;</div>
+                    <div class="sb-text">
+                        <strong>Send via WhatsApp</strong>
+                        <span>+670 77416502 &mdash; pre-filled message + attach PDF</span>
+                    </div>
+                    <span class="sb-badge">+ Attach PDF</span>
+                </a>
+                <div class="modal-divider">or</div>
+                <a id="btn-email" href="#" class="send-btn email" onclick="markSent('email')">
+                    <div class="sb-icon">&#128140;</div>
+                    <div class="sb-text">
+                        <strong>Send via Email</strong>
+                        <span>asaumartins@gmail.com &mdash; pre-filled subject &amp; body + attach PDF</span>
+                    </div>
+                    <span class="sb-badge">+ Attach PDF</span>
+                </a>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeSubmitModal()">Cancel &mdash; go back to review</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    var { jsPDF } = window.jspdf;
+    var STORAGE_KEY   = 'betWizardMatches';
+    var SETTINGS_KEY  = 'betWizardSettings';
+    var WA_NUMBER     = '67077416502';
+    var ADMIN_EMAIL   = 'asaumartins@gmail.com';
+    var SYSTEM_NAME   = 'Soccer Betting Wizard';
+    var SYSTEM_LOGO   = '';
+
+    var matchesData = [];
+    var currentRef  = '';
+
+    // ===== LOAD SETTINGS FROM ADMIN =====
+    function loadSystemSettings() {
+        try {
+            var s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            if (s.wa)    WA_NUMBER   = s.wa;
+            if (s.email) ADMIN_EMAIL = s.email;
+            if (s.name)  SYSTEM_NAME = s.name;
+            if (s.logo)  SYSTEM_LOGO = s.logo;
+            // Update page title
+            document.querySelector('h1').innerHTML = '&#9917; ' + SYSTEM_NAME.replace(' ', ' <span>').replace(/(\w+)$/, '$1</span>');
+            // Apply custom T&C if set
+            if (s.terms) {
+                var termsBox = document.querySelector('.terms-box');
+                if (termsBox) {
+                    var paras = s.terms.trim().split(/\n+/).filter(function(l){ return l.trim(); });
+                    termsBox.innerHTML = '<p><strong>Please read these terms carefully before proceeding:</strong></p>' +
+                        paras.map(function(p, i){ return '<p>'+(i+1)+'. '+p.trim()+'</p>'; }).join('');
+                }
+            }
+        } catch(e) {}
+    }
+
+    // ===== LOAD MATCHES =====
+    function loadMatches() {
+        try {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                matchesData = JSON.parse(saved);
+            } else {
+                matchesData = [
+                    { id:'match1', homeTeam:'Manchester United', awayTeam:'Liverpool',   league:'Premier League', date:'15/06/2023', homeLogo:'', awayLogo:'' },
+                    { id:'match2', homeTeam:'Barcelona',         awayTeam:'Real Madrid', league:'La Liga',        date:'16/06/2023', homeLogo:'', awayLogo:'' },
+                    { id:'match3', homeTeam:'Juventus',          awayTeam:'AC Milan',    league:'Serie A',        date:'17/06/2023', homeLogo:'', awayLogo:'' }
+                ];
+            }
+        } catch(e) { matchesData = []; }
+    }
+
+    // ===== RENDER MATCHES =====
+    function renderMatches() {
+        var area = document.getElementById('matches-area');
+        area.innerHTML = '';
+        if (matchesData.length === 0) {
+            area.innerHTML = '<div class="no-matches-msg"><div>&#128197;</div><p>No matches have been set up yet.<br>Please check back later or contact the administrator.</p></div>';
+            return;
+        }
+        var wrap = document.createElement('div');
+        wrap.className = 'matches-wrap';
+        var table = document.createElement('table');
+        table.className = 'matches-table';
+        table.innerHTML = '<thead><tr>' +
+            '<th style="width:41%;text-align:left;padding-left:14px">Match</th>' +
+            '<th style="width:13%">League</th>' +
+            '<th style="width:10%">Date</th>' +
+            '<th style="width:9%">H</th><th style="width:9%">D</th><th style="width:9%">A</th>' +
+            '</tr></thead>';
+        var tbody = document.createElement('tbody');
+        matchesData.forEach(function(m) {
+            var hL = m.homeLogo ? '<img src="'+m.homeLogo+'" class="team-logo" alt="">' : '<div class="team-logo-placeholder">'+m.homeTeam.slice(0,2).toUpperCase()+'</div>';
+            var aL = m.awayLogo ? '<img src="'+m.awayLogo+'" class="team-logo" alt="">' : '<div class="team-logo-placeholder">'+m.awayTeam.slice(0,2).toUpperCase()+'</div>';
+            var tr = document.createElement('tr');
+            tr.className = 'match-row';
+            tr.innerHTML = '<td><div class="teams-cell">'+hL+'<span>'+m.homeTeam+'</span><span class="vs-sep">vs</span>'+aL+'<span>'+m.awayTeam+'</span></div></td>' +
+                '<td><span class="league-badge">'+m.league+'</span></td>' +
+                '<td class="date-text">'+m.date+'</td>' +
+                '<td class="pred-cell home"><input type="radio" name="'+m.id+'" id="'+m.id+'-h" value="home" onchange="updatePredProgress()"><label for="'+m.id+'-h">H</label></td>' +
+                '<td class="pred-cell draw"><input type="radio" name="'+m.id+'" id="'+m.id+'-d" value="draw" onchange="updatePredProgress()"><label for="'+m.id+'-d">D</label></td>' +
+                '<td class="pred-cell away"><input type="radio" name="'+m.id+'" id="'+m.id+'-a" value="away" onchange="updatePredProgress()"><label for="'+m.id+'-a">A</label></td>';
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+        area.appendChild(wrap);
+    }
+
+    function updatePredProgress() {
+        if (!matchesData.length) return;
+        var done = matchesData.filter(function(m){ return document.querySelector('input[name="'+m.id+'"]:checked'); }).length;
+        document.getElementById('pred-bar').style.width = Math.round((done/matchesData.length)*100)+'%';
+    }
+
+    // ===== BET AMOUNT =====
+    function selectAmount(radio) {
+        document.querySelectorAll('.amount-card').forEach(function(c){ c.classList.remove('selected'); });
+        radio.closest('.amount-card').classList.add('selected');
+        var disp = document.getElementById('amount-display');
+        document.getElementById('amount-display-val').textContent = '$' + radio.value + ' USD';
+        disp.classList.add('show');
+        document.getElementById('err-amount').style.display = 'none';
+    }
+
+    function getSelectedAmount() {
+        var r = document.querySelector('input[name="bet-amount"]:checked');
+        return r ? r.value : '';
+    }
+
+    // ===== NAVIGATION =====
+    var PROGRESS = ['0%', '25%', '50%', '75%', '100%'];
+
+    function goTo(n) {
+        document.querySelectorAll('.form-step').forEach(function(s){ s.classList.remove('active'); });
+        document.getElementById('form-step-'+n).classList.add('active');
+        for (var i=1; i<=5; i++) {
+            var dot = document.getElementById('step-dot-'+i);
+            dot.classList.remove('active','completed');
+            if (i < n) dot.classList.add('completed');
+            else if (i === n) dot.classList.add('active');
+        }
+        document.getElementById('step-indicator').style.setProperty('--progress', PROGRESS[n-1]);
+        if (n === 5) populateSummary();
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // ===== VALIDATION =====
+    function setErr(id, show, msg) {
+        var el = document.getElementById(id);
+        el.style.display = show ? 'block' : 'none';
+        if (msg) el.textContent = msg;
+    }
+
+    function validateStep2AndGo() {
+        var name    = document.getElementById('full-name').value.trim();
+        var email   = document.getElementById('email').value.trim();
+        var phone   = document.getElementById('phone').value.trim();
+        var id      = document.getElementById('identity-number').value.trim();
+        var address = document.getElementById('address').value.trim();
+        var nameOk    = name.length > 0;
+        var emailOk   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        var phoneOk   = /^[0-9]{8}$/.test(phone);
+        var idOk      = id.length > 0;
+        var addressOk = address.length > 0;
+        setErr('err-name',    !nameOk,    'Please enter your full name.');
+        setErr('err-email',   !emailOk,   'Please enter a valid email address.');
+        setErr('err-phone',   !phoneOk,   'Please enter a valid 8-digit phone number.');
+        setErr('err-id',      !idOk,      'Please enter your identity number.');
+        setErr('err-address', !addressOk, 'Please enter your address.');
+        if (nameOk && emailOk && phoneOk && idOk && addressOk) goTo(3);
+    }
+
+    function validateStep3AndGo() {
+        var amt = getSelectedAmount();
+        if (!amt) { document.getElementById('err-amount').style.display='block'; return; }
+        goTo(4);
+    }
+
+    function validateStep4AndGo() {
+        if (matchesData.length === 0) { goTo(5); return; }
+        var allDone = matchesData.every(function(m){
+            return document.querySelector('input[name="'+m.id+'"]:checked');
+        });
+        if (!allDone) { showToast('Please predict all matches before continuing.', 'error'); return; }
+        goTo(5);
+    }
+
+    // ===== USER PROFILE PICTURE =====
+    var userProfilePicData = ''; // base64 data URL
+
+    function handleUserPicUpload(input) {
+        var file = input.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            userProfilePicData = e.target.result;
+            // Update the upload circle preview
+            var img = document.getElementById('user-pic-img');
+            var initials = document.getElementById('user-pic-initials');
+            img.src = userProfilePicData;
+            img.style.display = 'block';
+            initials.style.display = 'none';
+            // Show uploaded badge
+            document.getElementById('user-pic-badge').style.display = 'inline-block';
+            showToast('Profile photo uploaded!', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Update initials in upload circle when name is typed
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('full-name').addEventListener('input', function() {
+            var val = this.value.trim();
+            var init = val ? val.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase() : '?';
+            document.getElementById('user-pic-initials').textContent = init;
+        });
+    });
+
+    // ===== SUMMARY =====
+    function populateSummary() {
+        var name  = document.getElementById('full-name').value;
+        var email = document.getElementById('email').value;
+        var phone = document.getElementById('phone').value;
+        var idno  = document.getElementById('identity-number').value;
+
+        document.getElementById('sum-name').textContent    = name;
+        document.getElementById('sum-email').textContent   = email;
+        document.getElementById('sum-phone').textContent   = '+670 '+phone;
+        document.getElementById('sum-id').textContent      = idno;
+        document.getElementById('sum-address').textContent = document.getElementById('address').value;
+
+        // Profile photo in summary
+        var sumPic     = document.getElementById('sum-profile-pic');
+        var sumInitial = document.getElementById('sum-profile-initial');
+        var sumPName   = document.getElementById('sum-profile-name');
+        var sumPSub    = document.getElementById('sum-profile-sub');
+
+        sumPName.textContent = name || '—';
+        sumPSub.textContent  = email || '—';
+
+        if (userProfilePicData) {
+            sumPic.src = userProfilePicData;
+            sumPic.style.display = 'block';
+            sumInitial.style.display = 'none';
+        } else {
+            var init = name ? name.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase() : '?';
+            sumInitial.textContent = init;
+            sumPic.style.display = 'none';
+            sumInitial.style.display = 'flex';
+        }
+
+        var amt = getSelectedAmount();
+        var badge = document.getElementById('sum-amount-badge');
+        badge.innerHTML = '<span class="summary-amount-badge">&#128176; <span>$'+amt+' USD</span></span>';
+
+        var tbody = document.getElementById('sum-preds');
+        tbody.innerHTML = '';
+        matchesData.forEach(function(m) {
+            var checkedInput = document.querySelector('input[name="'+m.id+'"]:checked');
+            var v = checkedInput ? checkedInput.value : '';
+            var isHome = (v === 'home');
+            var isDraw = (v === 'draw');
+            var isAway = (v === 'away');
+            var tr = document.createElement('tr');
+            var homeTd = document.createElement('td'); homeTd.className = 'col-home'; homeTd.textContent = m.homeTeam;
+            var vsTd   = document.createElement('td'); vsTd.className = 'col-vs';   vsTd.textContent = 'vs';
+            var awayTd = document.createElement('td'); awayTd.className = 'col-away'; awayTd.textContent = m.awayTeam;
+            var dateTd = document.createElement('td'); dateTd.className = 'col-date'; dateTd.textContent = m.date;
+            var hTd = document.createElement('td'); hTd.className = 'pred-cell-sum'+(isHome?' pred-x':''); hTd.textContent = isHome?'X':'';
+            var dTd = document.createElement('td'); dTd.className = 'pred-cell-sum'+(isDraw?' pred-x':''); dTd.textContent = isDraw?'X':'';
+            var aTd = document.createElement('td'); aTd.className = 'pred-cell-sum'+(isAway?' pred-x':''); aTd.textContent = isAway?'X':'';
+            tr.appendChild(homeTd); tr.appendChild(vsTd); tr.appendChild(awayTd);
+            tr.appendChild(dateTd); tr.appendChild(hTd); tr.appendChild(dTd); tr.appendChild(aTd);
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ===== BUILD MESSAGE TEXT =====
+    function buildMessageText(ref) {
+        var name    = document.getElementById('full-name').value;
+        var email   = document.getElementById('email').value;
+        var phone   = '+670 '+document.getElementById('phone').value;
+        var idno    = document.getElementById('identity-number').value;
+        var address = document.getElementById('address').value;
+        var amt     = '$'+getSelectedAmount()+' USD';
+        var lines = [];
+        lines.push('*'+SYSTEM_NAME.toUpperCase()+' - PREDICTION SUBMISSION*');
+        lines.push('Reference: '+ref);
+        lines.push('Date: '+new Date().toLocaleString());
+        lines.push('');
+        lines.push('*PERSONAL INFORMATION*');
+        lines.push('Name: '+name);
+        lines.push('Email: '+email);
+        lines.push('Phone: '+phone);
+        lines.push('Identity: '+idno);
+        lines.push('Address: '+address);
+        lines.push('Bet Amount: '+amt);
+        lines.push('');
+        lines.push('*MATCH PREDICTIONS*');
+        matchesData.forEach(function(m, i) {
+            var pred  = document.querySelector('input[name="'+m.id+'"]:checked');
+            var v     = pred ? pred.value.toUpperCase() : '?';
+            var label = v==='HOME' ? 'Home Win' : v==='DRAW' ? 'Draw' : 'Away Win';
+            lines.push((i+1)+'. '+m.homeTeam+' vs '+m.awayTeam+' ['+m.league+'] - '+m.date+' => *'+label+'*');
+        });
+        lines.push('');
+        lines.push('Submitted via '+SYSTEM_NAME);
+        return lines.join('\n');
+    }
+
+    // ===== CANVAS UTILS — circular crop to PNG base64 =====
+    function cropCircle(src, size, callback) {
+        var img = new Image();
+        img.onload = function() {
+            var c = document.createElement('canvas');
+            c.width = c.height = size;
+            var ctx = c.getContext('2d');
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(img, 0, 0, size, size);
+            callback(c.toDataURL('image/png'));
+        };
+        img.onerror = function() { callback(null); };
+        img.src = src;
+    }
+
+    function scaleImage(src, w, h, callback) {
+        if (!src) { callback(null); return; }
+        var img = new Image();
+        img.onload = function() {
+            var c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            c.getContext('2d').drawImage(img, 0, 0, w, h);
+            callback(c.toDataURL('image/png'));
+        };
+        img.onerror = function() { callback(null); };
+        img.src = src;
+    }
+
+    // ===== PDF GENERATION =====
+    function buildPDF(ref) {
+        // Gather all image data first via canvas, then render
+        var name    = document.getElementById('full-name').value;
+        var email   = document.getElementById('email').value;
+        var phone   = '+670 '+document.getElementById('phone').value;
+        var idno    = document.getElementById('identity-number').value;
+        var address = document.getElementById('address').value;
+        var amt     = '$'+getSelectedAmount()+' USD';
+
+        // Collect all logos needed
+        var logoSrcs = matchesData.map(function(m) { return { home: m.homeLogo||'', away: m.awayLogo||'' }; });
+        var processed = { profile: null, sysLogo: null, teamLogos: [] };
+        var pending = 0;
+
+        function done() {
+            pending--;
+            if (pending <= 0) renderPDF();
+        }
+
+        // Profile pic
+        if (userProfilePicData) {
+            pending++;
+            cropCircle(userProfilePicData, 200, function(png) { processed.profile = png; done(); });
+        }
+        // System logo
+        if (SYSTEM_LOGO) {
+            pending++;
+            scaleImage(SYSTEM_LOGO, 160, 160, function(png) { processed.sysLogo = png; done(); });
+        }
+        // Team logos
+        var logoCount = matchesData.length * 2;
+        if (logoCount > 0) {
+            pending += logoCount;
+            matchesData.forEach(function(m, i) {
+                processed.teamLogos[i] = { home: null, away: null };
+                if (m.homeLogo) {
+                    cropCircle(m.homeLogo, 80, function(png) { processed.teamLogos[i].home = png; done(); });
+                } else { done(); }
+                if (m.awayLogo) {
+                    cropCircle(m.awayLogo, 80, function(png) { processed.teamLogos[i].away = png; done(); });
+                } else { done(); }
+            });
+        }
+
+        if (pending === 0) renderPDF();
+
+        function renderPDF() {
+            var doc = new jsPDF();
+            var pageW = 210;
+
+            // ── HEADER BAR ──
+            doc.setFillColor(15,28,63);
+            doc.rect(0, 0, pageW, 38, 'F');
+
+            // System logo (top-left of header)
+            var titleX = 10;
+            if (processed.sysLogo) {
+                try { doc.addImage(processed.sysLogo, 'PNG', 6, 3, 14, 14); titleX = 24; } catch(e) {}
+            }
+
+            doc.setFontSize(18); doc.setTextColor(255,255,255); doc.setFont(undefined,'bold');
+            doc.text(SYSTEM_NAME.toUpperCase(), pageW/2, 14, {align:'center'});
+            doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(232,160,32);
+            doc.text('Prediction Submission Summary', pageW/2, 22, {align:'center'});
+            doc.setFontSize(8); doc.setTextColor(180,195,220);
+            doc.text('Ref: '+ref+'   |   '+new Date().toLocaleString(), pageW/2, 30, {align:'center'});
+
+            // ── PROFILE PICTURE + NAME BLOCK ──
+            var profileTop = 43;
+            var picSize = 28;
+            var picX = 14, picY = profileTop;
+            var textX = 14;
+
+            if (processed.profile) {
+                try {
+                    // Navy backing circle
+                    doc.setFillColor(30,58,110);
+                    doc.circle(picX+picSize/2, picY+picSize/2, picSize/2+1.2, 'F');
+                    doc.addImage(processed.profile, 'PNG', picX, picY, picSize, picSize);
+                    // Gold ring
+                    doc.setDrawColor(232,160,32); doc.setLineWidth(0.7);
+                    doc.circle(picX+picSize/2, picY+picSize/2, picSize/2+0.3);
+                    textX = picX + picSize + 7;
+                } catch(e) { textX = 14; }
+            }
+
+            var ny = profileTop + 6;
+            doc.setFontSize(13); doc.setTextColor(15,28,63); doc.setFont(undefined,'bold');
+            doc.text(name, textX, ny);
+            doc.setFontSize(8.5); doc.setFont(undefined,'normal'); doc.setTextColor(100,116,139);
+            doc.text(email, textX, ny+6);
+            doc.text(phone+'   |   ID: '+idno, textX, ny+11);
+            doc.text('Address: '+address, textX, ny+16);
+            // Bet badge
+            doc.setFillColor(232,160,32);
+            doc.roundedRect(textX, ny+20, 34, 7, 1.5, 1.5, 'F');
+            doc.setFontSize(8); doc.setFont(undefined,'bold'); doc.setTextColor(15,28,63);
+            doc.text('BET: '+amt, textX+17, ny+24.8, {align:'center'});
+
+            // Divider
+            var divY = profileTop + (processed.profile ? picSize+4 : 32);
+            divY = Math.max(divY, ny+31);
+            doc.setDrawColor(220,227,240); doc.setLineWidth(0.3);
+            doc.line(14, divY, 196, divY);
+
+            // ── PERSONAL INFO TABLE ──
+            var t1Y = divY+5;
+            doc.setFontSize(9.5); doc.setTextColor(30,58,110); doc.setFont(undefined,'bold');
+            doc.text('PERSONAL INFORMATION', 14, t1Y);
+            doc.setDrawColor(232,160,32); doc.setLineWidth(0.5);
+            doc.line(14, t1Y+1.5, 196, t1Y+1.5);
+
+            doc.autoTable({
+                startY: t1Y+4,
+                head: [['Field','Value']],
+                body: [
+                    ['Full Name',   name],
+                    ['Email',       email],
+                    ['Phone',       phone],
+                    ['Identity No', idno],
+                    ['Address',     address],
+                    ['Bet Amount',  amt]
+                ],
+                theme: 'grid',
+                headStyles: {fillColor:[30,58,110], textColor:255, fontStyle:'bold', fontSize:8.5},
+                bodyStyles: {fontSize:8.5},
+                columnStyles: {0:{fontStyle:'bold', cellWidth:48, fillColor:[248,250,255]}}
+            });
+
+            // ── MATCH PREDICTIONS TABLE ──
+            var t2Y = doc.autoTable.previous.finalY+9;
+            doc.setFontSize(9.5); doc.setTextColor(30,58,110); doc.setFont(undefined,'bold');
+            doc.text('MATCH PREDICTIONS', 14, t2Y);
+            doc.setDrawColor(232,160,32); doc.setLineWidth(0.5);
+            doc.line(14, t2Y+1.5, 196, t2Y+1.5);
+
+            // Build rows — team logos drawn via didDrawCell
+            var rows = matchesData.map(function(m, i) {
+                var pred = document.querySelector('input[name="'+m.id+'"]:checked');
+                var v = pred ? pred.value : '';
+                return [
+                    '',          // col 0: home logo placeholder
+                    m.homeTeam,  // col 1
+                    'vs',        // col 2
+                    '',          // col 3: away logo placeholder
+                    m.awayTeam,  // col 4
+                    m.date,      // col 5
+                    v==='home'?'X':'',  // col 6
+                    v==='draw'?'X':'',  // col 7
+                    v==='away'?'X':''   // col 8
+                ];
+            });
+
+            doc.autoTable({
+                startY: t2Y+4,
+                head: [
+                    [
+                        {content:'Match', colSpan:5, styles:{halign:'center', fillColor:[15,28,63], fontStyle:'bold', fontSize:9}},
+                        {content:'Date',  rowSpan:2, styles:{halign:'center', fillColor:[30,58,110], fontStyle:'bold', fontSize:8, valign:'middle'}},
+                        {content:'Predictions', colSpan:3, styles:{halign:'center', fillColor:[15,28,63], fontStyle:'bold', fontSize:9}}
+                    ],
+                    [
+                        {content:'',         styles:{halign:'center', fillColor:[30,58,110], cellWidth:8}},
+                        {content:'Home',     styles:{halign:'right',  fillColor:[30,58,110], fontStyle:'bold', fontSize:8, textColor:[255,255,255]}},
+                        {content:'vs',       styles:{halign:'center', fillColor:[30,58,110], fontSize:7, textColor:[200,210,230]}},
+                        {content:'',         styles:{halign:'center', fillColor:[30,58,110], cellWidth:8}},
+                        {content:'Away',     styles:{halign:'left',   fillColor:[30,58,110], fontStyle:'bold', fontSize:8, textColor:[255,255,255]}},
+                        {content:'Home',     styles:{halign:'center', fillColor:[30,58,110], fontStyle:'bold', fontSize:8, textColor:[255,255,255]}},
+                        {content:'Draw',     styles:{halign:'center', fillColor:[30,58,110], fontStyle:'bold', fontSize:8, textColor:[255,255,255]}},
+                        {content:'Away',     styles:{halign:'center', fillColor:[30,58,110], fontStyle:'bold', fontSize:8, textColor:[255,255,255]}}
+                    ]
+                ],
+                body: rows,
+                theme: 'grid',
+                headStyles: {textColor:[255,255,255], fontSize:8},
+                bodyStyles: {fontSize:8, minCellHeight:9},
+                columnStyles: {
+                    0:{cellWidth:8,  halign:'center'},
+                    1:{cellWidth:38, halign:'right',  fontStyle:'bold'},
+                    2:{cellWidth:8,  halign:'center', textColor:[160,170,185]},
+                    3:{cellWidth:8,  halign:'center'},
+                    4:{cellWidth:38, halign:'left',   fontStyle:'bold'},
+                    5:{cellWidth:24, halign:'center'},
+                    6:{cellWidth:16, halign:'center'},
+                    7:{cellWidth:16, halign:'center'},
+                    8:{cellWidth:16, halign:'center'}
+                },
+                didParseCell: function(data) {
+                    if (data.section==='body' && data.column.index >= 6 && data.cell.raw==='X') {
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fontSize  = 12;
+                        data.cell.styles.textColor = [220,38,38];
+                        data.cell.styles.fillColor = [255,240,240];
+                    }
+                },
+                didDrawCell: function(data) {
+                    if (data.section !== 'body') return;
+                    var i = data.row.index;
+                    var logos = processed.teamLogos[i];
+                    if (!logos) return;
+                    var sz = 6; // logo size mm
+                    var cx = data.cell.x + data.cell.width/2 - sz/2;
+                    var cy = data.cell.y + data.cell.height/2 - sz/2;
+                    try {
+                        if (data.column.index === 0 && logos.home) {
+                            doc.addImage(logos.home, 'PNG', cx, cy, sz, sz);
+                        }
+                        if (data.column.index === 3 && logos.away) {
+                            doc.addImage(logos.away, 'PNG', cx, cy, sz, sz);
+                        }
+                    } catch(e) {}
+                }
+            });
+
+            // ── FOOTER ──
+            var pageH = doc.internal.pageSize.height;
+            doc.setDrawColor(220,227,240); doc.setLineWidth(0.3);
+            doc.line(14, pageH-13, 196, pageH-13);
+            doc.setFontSize(7.5); doc.setTextColor(160); doc.setFont(undefined,'normal');
+            doc.text(SYSTEM_NAME+'  |  Ref: '+ref+'  |  '+new Date().toLocaleDateString(), pageW/2, pageH-7, {align:'center'});
+
+            return doc;
+        }
+        return null; // caller uses async pattern via generateAndDownloadPDF
+    }
+
+    var currentPdfFilename = '';
+
+    function generateAndDownloadPDF(ref, callback) {
+        var fname = document.getElementById('full-name').value.replace(/\s+/g,'-').toLowerCase();
+        currentPdfFilename = 'bet-prediction-'+fname+'-'+ref+'.pdf';
+        // buildPDF is async — it calls renderPDF internally and saves
+        // We patch it here to also trigger the callback and save
+        _buildAndSavePDF(ref, currentPdfFilename, callback);
+    }
+
+    function _buildAndSavePDF(ref, filename, callback) {
+        var name    = document.getElementById('full-name').value;
+        var email   = document.getElementById('email').value;
+        var phone   = '+670 '+document.getElementById('phone').value;
+        var idno    = document.getElementById('identity-number').value;
+        var address = document.getElementById('address').value;
+        var amt     = '$'+getSelectedAmount()+' USD';
+
+        var processed = { profile: null, sysLogo: null, teamLogos: [] };
+        var pending = 0;
+
+        function done() {
+            pending--;
+            if (pending <= 0) finalize();
+        }
+
+        if (userProfilePicData) {
+            pending++;
+            cropCircle(userProfilePicData, 200, function(png) { processed.profile = png; done(); });
+        }
+        if (SYSTEM_LOGO) {
+            pending++;
+            scaleImage(SYSTEM_LOGO, 160, 160, function(png) { processed.sysLogo = png; done(); });
+        }
+        matchesData.forEach(function(m, i) {
+            processed.teamLogos[i] = { home: null, away: null };
+            pending += 2;
+            if (m.homeLogo) { cropCircle(m.homeLogo, 80, function(png) { processed.teamLogos[i].home = png; done(); }); }
+            else { done(); }
+            if (m.awayLogo) { cropCircle(m.awayLogo, 80, function(png) { processed.teamLogos[i].away = png; done(); }); }
+            else { done(); }
+        });
+
+        if (pending === 0) finalize();
+
+        function finalize() {
+            var doc = new jsPDF();
+            var pageW = 210;
+
+            // Header
+            doc.setFillColor(15,28,63);
+            doc.rect(0,0,pageW,38,'F');
+            if (processed.sysLogo) {
+                try { doc.addImage(processed.sysLogo,'PNG',6,4,13,13); } catch(e) {}
+            }
+            doc.setFontSize(18); doc.setTextColor(255,255,255); doc.setFont(undefined,'bold');
+            doc.text(SYSTEM_NAME.toUpperCase(), pageW/2, 14, {align:'center'});
+            doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(232,160,32);
+            doc.text('Prediction Submission Summary', pageW/2, 22, {align:'center'});
+            doc.setFontSize(8); doc.setTextColor(180,195,220);
+            doc.text('Ref: '+ref+'   |   '+new Date().toLocaleString(), pageW/2, 30, {align:'center'});
+
+            // Profile picture
+            var profileTop = 43;
+            var picSize = 28, picX = 14, picY = profileTop;
+            var textX = 14;
+            if (processed.profile) {
+                try {
+                    doc.setFillColor(30,58,110);
+                    doc.circle(picX+picSize/2, picY+picSize/2, picSize/2+1.2, 'F');
+                    doc.addImage(processed.profile,'PNG',picX,picY,picSize,picSize);
+                    doc.setDrawColor(232,160,32); doc.setLineWidth(0.7);
+                    doc.circle(picX+picSize/2, picY+picSize/2, picSize/2+0.3);
+                    textX = picX+picSize+7;
+                } catch(e) { textX = 14; }
+            }
+
+            var ny = profileTop+6;
+            doc.setFontSize(13); doc.setTextColor(15,28,63); doc.setFont(undefined,'bold');
+            doc.text(name, textX, ny);
+            doc.setFontSize(8.5); doc.setFont(undefined,'normal'); doc.setTextColor(100,116,139);
+            doc.text(email, textX, ny+6);
+            doc.text(phone+'   |   ID: '+idno, textX, ny+11);
+            doc.text('Address: '+address, textX, ny+16);
+            doc.setFillColor(232,160,32);
+            doc.roundedRect(textX, ny+20, 34, 7, 1.5, 1.5, 'F');
+            doc.setFontSize(8); doc.setFont(undefined,'bold'); doc.setTextColor(15,28,63);
+            doc.text('BET: '+amt, textX+17, ny+24.8, {align:'center'});
+
+            var divY = Math.max(profileTop+(processed.profile ? picSize+4 : 32), ny+31);
+            doc.setDrawColor(220,227,240); doc.setLineWidth(0.3);
+            doc.line(14,divY,196,divY);
+
+            // Personal info table
+            var t1Y = divY+5;
+            doc.setFontSize(9.5); doc.setTextColor(30,58,110); doc.setFont(undefined,'bold');
+            doc.text('PERSONAL INFORMATION',14,t1Y);
+            doc.setDrawColor(232,160,32); doc.setLineWidth(0.5);
+            doc.line(14,t1Y+1.5,196,t1Y+1.5);
+            doc.autoTable({
+                startY:t1Y+4, head:[['Field','Value']],
+                body:[['Full Name',name],['Email',email],['Phone',phone],['Identity No',idno],['Address',address],['Bet Amount',amt]],
+                theme:'grid',
+                headStyles:{fillColor:[30,58,110],textColor:255,fontStyle:'bold',fontSize:8.5},
+                bodyStyles:{fontSize:8.5},
+                columnStyles:{0:{fontStyle:'bold',cellWidth:48,fillColor:[248,250,255]}}
+            });
+
+            // Predictions table
+            var t2Y = doc.autoTable.previous.finalY+9;
+            doc.setFontSize(9.5); doc.setTextColor(30,58,110); doc.setFont(undefined,'bold');
+            doc.text('MATCH PREDICTIONS',14,t2Y);
+            doc.setDrawColor(232,160,32); doc.setLineWidth(0.5);
+            doc.line(14,t2Y+1.5,196,t2Y+1.5);
+
+            var rows = matchesData.map(function(m){
+                var pred = document.querySelector('input[name="'+m.id+'"]:checked');
+                var v = pred ? pred.value : '';
+                return ['',m.homeTeam,'vs','',m.awayTeam,m.date,v==='home'?'X':'',v==='draw'?'X':'',v==='away'?'X':''];
+            });
+
+            doc.autoTable({
+                startY:t2Y+4,
+                head:[
+                    [
+                        {content:'Match',colSpan:5,styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}},
+                        {content:'Date',rowSpan:2,styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,valign:'middle'}},
+                        {content:'Predictions',colSpan:3,styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}}
+                    ],
+                    [
+                        {content:'',styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
+                        {content:'Home Team',styles:{halign:'right',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'vs',styles:{halign:'center',fillColor:[30,58,110],fontSize:7,textColor:[200,210,230]}},
+                        {content:'',styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
+                        {content:'Away Team',styles:{halign:'left',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Home',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Draw',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Away',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}}
+                    ]
+                ],
+                body:rows, theme:'grid',
+                headStyles:{textColor:[255,255,255],fontSize:8},
+                bodyStyles:{fontSize:8,minCellHeight:9},
+                columnStyles:{
+                    0:{cellWidth:8,halign:'center'},
+                    1:{cellWidth:38,halign:'right',fontStyle:'bold'},
+                    2:{cellWidth:8,halign:'center',textColor:[160,170,185]},
+                    3:{cellWidth:8,halign:'center'},
+                    4:{cellWidth:38,halign:'left',fontStyle:'bold'},
+                    5:{cellWidth:24,halign:'center'},
+                    6:{cellWidth:16,halign:'center'},
+                    7:{cellWidth:16,halign:'center'},
+                    8:{cellWidth:16,halign:'center'}
+                },
+                didParseCell:function(data){
+                    if(data.section==='body'&&data.column.index>=6&&data.cell.raw==='X'){
+                        data.cell.styles.fontStyle='bold';
+                        data.cell.styles.fontSize=12;
+                        data.cell.styles.textColor=[220,38,38];
+                        data.cell.styles.fillColor=[255,240,240];
+                    }
+                },
+                didDrawCell:function(data){
+                    if(data.section!=='body') return;
+                    var i=data.row.index;
+                    var logos=processed.teamLogos[i];
+                    if(!logos) return;
+                    var sz=6;
+                    var cx=data.cell.x+data.cell.width/2-sz/2;
+                    var cy=data.cell.y+data.cell.height/2-sz/2;
+                    try {
+                        if(data.column.index===0&&logos.home) doc.addImage(logos.home,'PNG',cx,cy,sz,sz);
+                        if(data.column.index===3&&logos.away) doc.addImage(logos.away,'PNG',cx,cy,sz,sz);
+                    } catch(e){}
+                }
+            });
+
+            // Footer
+            var pageH=doc.internal.pageSize.height;
+            doc.setDrawColor(220,227,240); doc.setLineWidth(0.3);
+            doc.line(14,pageH-13,196,pageH-13);
+            doc.setFontSize(7.5); doc.setTextColor(160); doc.setFont(undefined,'normal');
+            doc.text(SYSTEM_NAME+'  |  Ref: '+ref+'  |  '+new Date().toLocaleDateString(), pageW/2, pageH-7, {align:'center'});
+
+            doc.save(filename);
+            if (callback) callback();
+        }
+    }
+
+    function redownloadPDF() {
+        if (!currentRef) return;
+        generateAndDownloadPDF(currentRef);
+        showToast('PDF re-downloaded!', 'success');
+    }
+
+    // ===== OPEN SUBMIT MODAL =====
+    function openSubmitModal() {
+        currentRef = 'BW-'+Date.now().toString(36).toUpperCase();
+        document.getElementById('modal-ref-display').textContent = 'REF: '+currentRef;
+
+        // Build links
+        var msg = buildMessageText(currentRef);
+        document.getElementById('btn-whatsapp').href = 'https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
+        var subject = SYSTEM_NAME+' - Prediction: '+document.getElementById('full-name').value+' ['+currentRef+']';
+        document.getElementById('btn-email').href = 'mailto:'+ADMIN_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg);
+
+        // Auto-generate and download PDF, then show modal
+        generateAndDownloadPDF(currentRef, function() {
+            document.getElementById('submit-modal').classList.add('open');
+        });
+    }
+
+    function closeSubmitModal() {
+        document.getElementById('submit-modal').classList.remove('open');
+    }
+
+    var sentChannels = [];
+    function markSent(channel) {
+        if (sentChannels.indexOf(channel) === -1) sentChannels.push(channel);
+        setTimeout(function(){
+            document.getElementById('submit-modal').classList.remove('open');
+            showSuccess();
+        }, 500);
+    }
+
+    function showSuccess() {
+        document.querySelectorAll('.form-step').forEach(function(s){ s.style.display='none'; });
+        document.getElementById('success-msg').style.display = 'block';
+        document.getElementById('success-ref').textContent = 'REF: '+currentRef;
+        for (var i=1; i<=5; i++) {
+            var dot = document.getElementById('step-dot-'+i);
+            dot.classList.remove('active');
+            dot.classList.add('completed');
+        }
+        document.getElementById('step-indicator').style.setProperty('--progress','100%');
+
+        var sentDiv = document.getElementById('success-sent');
+        sentDiv.innerHTML = '';
+        sentChannels.forEach(function(c){
+            if (c==='whatsapp') sentDiv.innerHTML += '<span class="sent-badge wa">&#128242; Sent via WhatsApp</span>';
+            if (c==='email')    sentDiv.innerHTML += '<span class="sent-badge em">&#128140; Sent via Email</span>';
+        });
+    }
+
+    // ===== PDF BUTTON (Step 5 review page) =====
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('btn-pdf').addEventListener('click', function(e) {
+            e.preventDefault();
+            var ref = currentRef || ('BW-PREVIEW-'+Date.now().toString(36).toUpperCase());
+            generateAndDownloadPDF(ref);
+        });
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, type) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast show'+(type?' '+type:'');
+        clearTimeout(t._t);
+        t._t = setTimeout(function(){ t.className='toast'; }, 2800);
+    }
+
+    // ===== INIT =====
+    loadSystemSettings();
+    loadMatches();
+    renderMatches();
+
+    // Auto-sync if admin updates matches or settings in another tab
+    window.addEventListener('storage', function(e) {
+        if (e.key === STORAGE_KEY) {
+            loadMatches();
+            renderMatches();
+            showToast('Match list updated by admin.', 'success');
+        }
+        if (e.key === SETTINGS_KEY) {
+            loadSystemSettings();
+            showToast('Settings updated by admin.', 'success');
+        }
+    });
+</script>
+</body>
+</html>
