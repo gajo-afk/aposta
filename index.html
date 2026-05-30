@@ -110,31 +110,53 @@
         .no-matches-msg{text-align:center;padding:36px 20px;background:#f8faff;
             border-radius:12px;border:1.5px dashed var(--border);color:var(--muted);}
         .no-matches-msg div{font-size:40px;margin-bottom:10px;}
+        /* MATCH TABLE — layout: Home Name | Home Flag | time | Away Flag | Away Name */
         .matches-wrap{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;}
         .matches-table{width:100%;border-collapse:collapse;}
         .matches-table thead tr{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);}
         .matches-table thead th{padding:9px 10px;font-size:11px;font-weight:700;
             font-family:'Barlow Condensed',sans-serif;letter-spacing:0.8px;text-transform:uppercase;
-            color:rgba(255,255,255,0.9);border-bottom:2px solid rgba(255,255,255,0.12);}
-        .matches-table thead th:first-child{text-align:left;padding-left:14px;}
-        .matches-table thead th:not(:first-child){text-align:center;}
-        .match-row{height:36px;border-bottom:1px solid var(--border);transition:background 0.12s;}
+            color:rgba(255,255,255,0.9);border-bottom:2px solid rgba(255,255,255,0.12);text-align:center;}
+        .matches-table thead th.th-match{text-align:center;width:52%;}
+        .matches-table thead th.th-league{width:13%;}
+        .matches-table thead th.th-pred{width:9%;}
+        .match-row{border-bottom:1px solid var(--border);transition:background 0.12s;}
         .match-row:last-child{border-bottom:none;}
         .match-row:nth-child(even){background:#f8faff;}
         .match-row:hover{background:#edf3ff;}
-        .match-row td{padding:4px 10px;font-size:13px;vertical-align:middle;}
-        .match-row td:not(:first-child){text-align:center;}
-        .teams-cell{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;}
-        .team-logo{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
-        .team-logo-placeholder{width:22px;height:22px;border-radius:50%;background:var(--border);
-            flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);font-weight:700;}
-        .vs-sep{color:var(--muted);font-weight:700;font-size:11px;flex-shrink:0;}
-        .league-badge{display:inline-block;padding:1px 7px;border-radius:20px;
-            background:#e8f0fe;color:var(--blue);font-size:11px;font-weight:600;}
-        .date-text{color:var(--muted);font-size:12px;}
+        .match-row td{padding:6px 8px;font-size:13px;vertical-align:middle;text-align:center;}
+
+        /* The match cell itself: flex row, centred */
+        .match-cell{display:flex;align-items:center;justify-content:center;gap:0;min-height:38px;}
+
+        /* Home side: name right-aligned then logo */
+        .home-side{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex:1;min-width:0;}
+        .home-side .team-name-txt{font-weight:700;color:var(--navy);font-size:13px;
+            text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+
+        /* Away side: logo then name left-aligned */
+        .away-side{display:flex;align-items:center;justify-content:flex-start;gap:7px;flex:1;min-width:0;}
+        .away-side .team-name-txt{font-weight:700;color:var(--navy);font-size:13px;
+            text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+
+        /* Team logo circle */
+        .team-logo{width:26px;height:26px;border-radius:50%;object-fit:cover;
+            border:1.5px solid var(--border);flex-shrink:0;background:#eee;}
+        .team-logo-placeholder{width:26px;height:26px;border-radius:50%;background:var(--border);
+            flex-shrink:0;display:flex;align-items:center;justify-content:center;
+            font-size:8px;color:var(--muted);font-weight:700;}
+
+        /* Time badge in the middle */
+        .match-time{flex-shrink:0;text-align:center;padding:0 10px;min-width:54px;}
+        .match-time .time-val{font-size:11px;font-weight:700;color:var(--blue);
+            background:#e8f0fe;padding:3px 7px;border-radius:6px;white-space:nowrap;display:inline-block;}
+
+        /* league + pred cells */
+        .league-badge{display:inline-block;padding:2px 8px;border-radius:20px;
+            background:#e8f0fe;color:var(--blue);font-size:11px;font-weight:600;white-space:nowrap;}
         .pred-cell input[type="radio"]{display:none;}
-        .pred-cell label{display:block;width:30px;height:23px;border-radius:5px;cursor:pointer;
-            border:1.5px solid var(--border);background:#fff;text-align:center;line-height:21px;
+        .pred-cell label{display:block;width:32px;height:25px;border-radius:6px;cursor:pointer;
+            border:1.5px solid var(--border);background:#fff;text-align:center;line-height:23px;
             font-size:11px;font-weight:700;color:var(--muted);margin:0 auto;transition:all 0.15s;}
         .pred-cell label:hover{border-color:var(--accent2);color:var(--accent2);background:#edf3ff;}
         .pred-cell.home  input:checked+label{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 6px rgba(34,197,94,0.35);}
@@ -206,17 +228,23 @@
             font-size:1.2rem;font-weight:800;}
         .summary-amount-badge span{color:var(--accent);}
         .prediction-table{width:100%;border-collapse:collapse;}
-        .prediction-table th,.prediction-table td{border:1px solid var(--border);padding:8px 10px;text-align:center;font-size:13px;}
+        .prediction-table th,.prediction-table td{border:1px solid var(--border);padding:8px 6px;text-align:center;font-size:13px;}
         .prediction-table thead tr:first-child th{background:var(--navy);color:white;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;}
         .prediction-table thead tr:last-child th{background:var(--blue);color:rgba(255,255,255,0.9);font-weight:600;font-size:11px;text-transform:uppercase;}
         .prediction-table tbody tr:nth-child(even){background:#f5f8ff;}
         .prediction-table tbody tr:hover{background:#edf3ff;}
-        .prediction-table .col-home{text-align:right;font-weight:700;color:var(--navy);min-width:90px;}
-        .prediction-table .col-away{text-align:left;font-weight:700;color:var(--navy);min-width:90px;}
-        .prediction-table .col-vs{font-weight:700;color:var(--muted);font-size:11px;width:24px;padding:8px 4px;}
-        .prediction-table .col-date{color:var(--muted);font-size:12px;white-space:nowrap;}
-        .prediction-table .pred-cell-sum{width:52px;background:#fafbff;}
-        .prediction-table .pred-x{font-weight:900;font-size:18px;background:#fff0f0 !important;color:var(--red) !important;}
+        /* summary match cell — same name-flag-time-flag-name layout */
+        .sum-match-cell{display:flex;align-items:center;justify-content:center;gap:0;}
+        .sum-home{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:1;}
+        .sum-home .sn{font-weight:700;color:var(--navy);font-size:12px;text-align:right;white-space:nowrap;}
+        .sum-away{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex:1;}
+        .sum-away .sn{font-weight:700;color:var(--navy);font-size:12px;text-align:left;white-space:nowrap;}
+        .sum-logo{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+        .sum-logo-ph{width:22px;height:22px;border-radius:50%;background:var(--border);flex-shrink:0;
+            display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);font-weight:700;}
+        .sum-time{flex-shrink:0;padding:0 8px;font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap;}
+        .pred-cell-sum{width:44px;background:#fafbff;}
+        .pred-x{font-weight:900;font-size:18px;background:#fff0f0 !important;color:var(--red) !important;}
 
         .download-btn{display:flex;align-items:center;justify-content:center;gap:8px;
             width:100%;background:linear-gradient(135deg,#d97706,var(--accent));
@@ -549,17 +577,15 @@
                 <table class="prediction-table">
                     <thead>
                         <tr>
-                            <th colspan="3">Match</th>
-                            <th rowspan="2">Date</th>
+                            <th colspan="1">Match</th>
+                            <th rowspan="2" style="width:13%">League</th>
                             <th colspan="3">Predictions</th>
                         </tr>
                         <tr>
-                            <th>Home Team</th>
-                            <th style="width:24px"></th>
-                            <th>Away Team</th>
-                            <th style="width:52px">Home</th>
-                            <th style="width:52px">Draw</th>
-                            <th style="width:52px">Away</th>
+                            <th>Home &nbsp;⏱&nbsp; Away</th>
+                            <th style="width:44px">Home</th>
+                            <th style="width:44px">Draw</th>
+                            <th style="width:44px">Away</th>
                         </tr>
                     </thead>
                     <tbody id="sum-preds"></tbody>
@@ -713,25 +739,60 @@
         var table = document.createElement('table');
         table.className = 'matches-table';
         table.innerHTML = '<thead><tr>' +
-            '<th style="width:41%;text-align:left;padding-left:14px">Match</th>' +
-            '<th style="width:13%">League</th>' +
-            '<th style="width:10%">Date</th>' +
-            '<th style="width:9%">H</th><th style="width:9%">D</th><th style="width:9%">A</th>' +
+            '<th class="th-match">Match</th>' +
+            '<th class="th-league">League</th>' +
+            '<th class="th-pred">H</th>' +
+            '<th class="th-pred">D</th>' +
+            '<th class="th-pred">A</th>' +
             '</tr></thead>';
         var tbody = document.createElement('tbody');
-        matchesData.forEach(function(m) {
-            var hL = m.homeLogo ? '<img src="'+m.homeLogo+'" class="team-logo" alt="">' : '<div class="team-logo-placeholder">'+m.homeTeam.slice(0,2).toUpperCase()+'</div>';
-            var aL = m.awayLogo ? '<img src="'+m.awayLogo+'" class="team-logo" alt="">' : '<div class="team-logo-placeholder">'+m.awayTeam.slice(0,2).toUpperCase()+'</div>';
+
+        matchesData.forEach(function(m, idx) {
+            var rid = 'mrow_' + idx;
+
+            var hLogo = m.homeLogo
+                ? '<img src="'+m.homeLogo+'" class="team-logo" alt="'+m.homeTeam+'">'
+                : '<div class="team-logo-placeholder">'+m.homeTeam.slice(0,2).toUpperCase()+'</div>';
+            var aLogo = m.awayLogo
+                ? '<img src="'+m.awayLogo+'" class="team-logo" alt="'+m.awayTeam+'">'
+                : '<div class="team-logo-placeholder">'+m.awayTeam.slice(0,2).toUpperCase()+'</div>';
+
             var tr = document.createElement('tr');
             tr.className = 'match-row';
-            tr.innerHTML = '<td><div class="teams-cell">'+hL+'<span>'+m.homeTeam+'</span><span class="vs-sep">vs</span>'+aL+'<span>'+m.awayTeam+'</span></div></td>' +
+            tr.setAttribute('data-match-id', m.id);
+            tr.setAttribute('data-row-idx', idx);
+
+            tr.innerHTML =
+                '<td>' +
+                    '<div class="match-cell">' +
+                        '<div class="home-side">' +
+                            '<span class="team-name-txt">'+m.homeTeam+'</span>' +
+                            hLogo +
+                        '</div>' +
+                        '<div class="match-time"><span class="time-val">'+m.date+'</span></div>' +
+                        '<div class="away-side">' +
+                            aLogo +
+                            '<span class="team-name-txt">'+m.awayTeam+'</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
                 '<td><span class="league-badge">'+m.league+'</span></td>' +
-                '<td class="date-text">'+m.date+'</td>' +
-                '<td class="pred-cell home"><input type="radio" name="'+m.id+'" id="'+m.id+'-h" value="home" onchange="updatePredProgress()"><label for="'+m.id+'-h">H</label></td>' +
-                '<td class="pred-cell draw"><input type="radio" name="'+m.id+'" id="'+m.id+'-d" value="draw" onchange="updatePredProgress()"><label for="'+m.id+'-d">D</label></td>' +
-                '<td class="pred-cell away"><input type="radio" name="'+m.id+'" id="'+m.id+'-a" value="away" onchange="updatePredProgress()"><label for="'+m.id+'-a">A</label></td>';
+                '<td class="pred-cell home">' +
+                    '<input type="radio" name="'+rid+'" id="'+rid+'-h" value="home" onchange="updatePredProgress()">' +
+                    '<label for="'+rid+'-h">H</label>' +
+                '</td>' +
+                '<td class="pred-cell draw">' +
+                    '<input type="radio" name="'+rid+'" id="'+rid+'-d" value="draw" onchange="updatePredProgress()">' +
+                    '<label for="'+rid+'-d">D</label>' +
+                '</td>' +
+                '<td class="pred-cell away">' +
+                    '<input type="radio" name="'+rid+'" id="'+rid+'-a" value="away" onchange="updatePredProgress()">' +
+                    '<label for="'+rid+'-a">A</label>' +
+                '</td>';
             tbody.appendChild(tr);
         });
+
+        // Store row-index → match-id mapping for later reading predictions
         table.appendChild(tbody);
         wrap.appendChild(table);
         area.appendChild(wrap);
@@ -739,7 +800,9 @@
 
     function updatePredProgress() {
         if (!matchesData.length) return;
-        var done = matchesData.filter(function(m){ return document.querySelector('input[name="'+m.id+'"]:checked'); }).length;
+        var done = matchesData.filter(function(m, idx){
+            return document.querySelector('input[name="mrow_'+idx+'"]:checked');
+        }).length;
         document.getElementById('pred-bar').style.width = Math.round((done/matchesData.length)*100)+'%';
     }
 
@@ -809,8 +872,8 @@
 
     function validateStep4AndGo() {
         if (matchesData.length === 0) { goTo(5); return; }
-        var allDone = matchesData.every(function(m){
-            return document.querySelector('input[name="'+m.id+'"]:checked');
+        var allDone = matchesData.every(function(m, idx){
+            return document.querySelector('input[name="mrow_'+idx+'"]:checked');
         });
         if (!allDone) { showToast('Please predict all matches before continuing.', 'error'); return; }
         goTo(5);
@@ -886,22 +949,38 @@
 
         var tbody = document.getElementById('sum-preds');
         tbody.innerHTML = '';
-        matchesData.forEach(function(m) {
-            var checkedInput = document.querySelector('input[name="'+m.id+'"]:checked');
+        matchesData.forEach(function(m, idx) {
+            var checkedInput = document.querySelector('input[name="mrow_'+idx+'"]:checked');
             var v = checkedInput ? checkedInput.value : '';
-            var isHome = (v === 'home');
-            var isDraw = (v === 'draw');
-            var isAway = (v === 'away');
+            var isHome = (v === 'home'), isDraw = (v === 'draw'), isAway = (v === 'away');
+
+            var hL = m.homeLogo
+                ? '<img src="'+m.homeLogo+'" class="sum-logo" alt="">'
+                : '<div class="sum-logo-ph">'+m.homeTeam.slice(0,2).toUpperCase()+'</div>';
+            var aL = m.awayLogo
+                ? '<img src="'+m.awayLogo+'" class="sum-logo" alt="">'
+                : '<div class="sum-logo-ph">'+m.awayTeam.slice(0,2).toUpperCase()+'</div>';
+
             var tr = document.createElement('tr');
-            var homeTd = document.createElement('td'); homeTd.className = 'col-home'; homeTd.textContent = m.homeTeam;
-            var vsTd   = document.createElement('td'); vsTd.className = 'col-vs';   vsTd.textContent = 'vs';
-            var awayTd = document.createElement('td'); awayTd.className = 'col-away'; awayTd.textContent = m.awayTeam;
-            var dateTd = document.createElement('td'); dateTd.className = 'col-date'; dateTd.textContent = m.date;
+
+            var matchTd = document.createElement('td');
+            matchTd.innerHTML =
+                '<div class="sum-match-cell">' +
+                    '<div class="sum-home"><span class="sn">'+m.homeTeam+'</span>'+hL+'</div>' +
+                    '<div class="sum-time">'+m.date+'</div>' +
+                    '<div class="sum-away">'+aL+'<span class="sn">'+m.awayTeam+'</span></div>' +
+                '</div>';
+
+            var leagueTd = document.createElement('td');
+            leagueTd.innerHTML = '<span class="league-badge">'+m.league+'</span>';
+
             var hTd = document.createElement('td'); hTd.className = 'pred-cell-sum'+(isHome?' pred-x':''); hTd.textContent = isHome?'X':'';
             var dTd = document.createElement('td'); dTd.className = 'pred-cell-sum'+(isDraw?' pred-x':''); dTd.textContent = isDraw?'X':'';
             var aTd = document.createElement('td'); aTd.className = 'pred-cell-sum'+(isAway?' pred-x':''); aTd.textContent = isAway?'X':'';
-            tr.appendChild(homeTd); tr.appendChild(vsTd); tr.appendChild(awayTd);
-            tr.appendChild(dateTd); tr.appendChild(hTd); tr.appendChild(dTd); tr.appendChild(aTd);
+
+            tr.appendChild(matchTd);
+            tr.appendChild(leagueTd);
+            tr.appendChild(hTd); tr.appendChild(dTd); tr.appendChild(aTd);
             tbody.appendChild(tr);
         });
     }
@@ -928,11 +1007,11 @@
         lines.push('Bet Amount: '+amt);
         lines.push('');
         lines.push('*MATCH PREDICTIONS*');
-        matchesData.forEach(function(m, i) {
-            var pred  = document.querySelector('input[name="'+m.id+'"]:checked');
+        matchesData.forEach(function(m, idx) {
+            var pred  = document.querySelector('input[name="mrow_'+idx+'"]:checked');
             var v     = pred ? pred.value.toUpperCase() : '?';
             var label = v==='HOME' ? 'Home Win' : v==='DRAW' ? 'Draw' : 'Away Win';
-            lines.push((i+1)+'. '+m.homeTeam+' vs '+m.awayTeam+' ['+m.league+'] - '+m.date+' => *'+label+'*');
+            lines.push((idx+1)+'. '+m.homeTeam+' vs '+m.awayTeam+' ['+m.league+'] - '+m.date+' => *'+label+'*');
         });
         lines.push('');
         lines.push('Submitted via '+SYSTEM_NAME);
@@ -1312,44 +1391,45 @@
             doc.setDrawColor(232,160,32); doc.setLineWidth(0.5);
             doc.line(14,t2Y+1.5,196,t2Y+1.5);
 
-            var rows = matchesData.map(function(m){
-                var pred = document.querySelector('input[name="'+m.id+'"]:checked');
+            var rows = matchesData.map(function(m, idx){
+                var pred = document.querySelector('input[name="mrow_'+idx+'"]:checked');
                 var v = pred ? pred.value : '';
-                return ['',m.homeTeam,'vs','',m.awayTeam,m.date,v==='home'?'X':'',v==='draw'?'X':'',v==='away'?'X':''];
+                // col: 0=homeName, 1=homeLogo, 2=date, 3=awayLogo, 4=awayName, 5=league, 6=H, 7=D, 8=A
+                return [m.homeTeam,'',m.date,'',m.awayTeam,m.league,v==='home'?'X':'',v==='draw'?'X':'',v==='away'?'X':''];
             });
 
             doc.autoTable({
                 startY:t2Y+4,
                 head:[
                     [
-                        {content:'Match',colSpan:5,styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}},
-                        {content:'Date',rowSpan:2,styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,valign:'middle'}},
-                        {content:'Predictions',colSpan:3,styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}}
+                        {content:'Match', colSpan:5, styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}},
+                        {content:'League', rowSpan:2, styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,valign:'middle'}},
+                        {content:'Predictions', colSpan:3, styles:{halign:'center',fillColor:[15,28,63],fontStyle:'bold',fontSize:9}}
                     ],
                     [
-                        {content:'',styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
-                        {content:'Home Team',styles:{halign:'right',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
-                        {content:'vs',styles:{halign:'center',fillColor:[30,58,110],fontSize:7,textColor:[200,210,230]}},
-                        {content:'',styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
-                        {content:'Away Team',styles:{halign:'left',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
-                        {content:'Home',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
-                        {content:'Draw',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
-                        {content:'Away',styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}}
+                        {content:'Home Team', styles:{halign:'right', fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'',          styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
+                        {content:'Time/Date', styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'',          styles:{halign:'center',fillColor:[30,58,110],cellWidth:8}},
+                        {content:'Away Team', styles:{halign:'left',  fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Home',      styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Draw',      styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}},
+                        {content:'Away',      styles:{halign:'center',fillColor:[30,58,110],fontStyle:'bold',fontSize:8,textColor:[255,255,255]}}
                     ]
                 ],
                 body:rows, theme:'grid',
                 headStyles:{textColor:[255,255,255],fontSize:8},
-                bodyStyles:{fontSize:8,minCellHeight:9},
+                bodyStyles:{fontSize:8,minCellHeight:10},
                 columnStyles:{
-                    0:{cellWidth:8,halign:'center'},
-                    1:{cellWidth:38,halign:'right',fontStyle:'bold'},
-                    2:{cellWidth:8,halign:'center',textColor:[160,170,185]},
-                    3:{cellWidth:8,halign:'center'},
-                    4:{cellWidth:38,halign:'left',fontStyle:'bold'},
-                    5:{cellWidth:24,halign:'center'},
-                    6:{cellWidth:16,halign:'center'},
-                    7:{cellWidth:16,halign:'center'},
-                    8:{cellWidth:16,halign:'center'}
+                    0:{cellWidth:36,halign:'right', fontStyle:'bold'},
+                    1:{cellWidth:9, halign:'center'},
+                    2:{cellWidth:22,halign:'center'},
+                    3:{cellWidth:9, halign:'center'},
+                    4:{cellWidth:36,halign:'left',  fontStyle:'bold'},
+                    5:{cellWidth:22,halign:'center'},
+                    6:{cellWidth:14,halign:'center'},
+                    7:{cellWidth:14,halign:'center'},
+                    8:{cellWidth:14,halign:'center'}
                 },
                 didParseCell:function(data){
                     if(data.section==='body'&&data.column.index>=6&&data.cell.raw==='X'){
@@ -1364,11 +1444,11 @@
                     var i=data.row.index;
                     var logos=processed.teamLogos[i];
                     if(!logos) return;
-                    var sz=6;
+                    var sz=7;
                     var cx=data.cell.x+data.cell.width/2-sz/2;
                     var cy=data.cell.y+data.cell.height/2-sz/2;
                     try {
-                        if(data.column.index===0&&logos.home) doc.addImage(logos.home,'PNG',cx,cy,sz,sz);
+                        if(data.column.index===1&&logos.home) doc.addImage(logos.home,'PNG',cx,cy,sz,sz);
                         if(data.column.index===3&&logos.away) doc.addImage(logos.away,'PNG',cx,cy,sz,sz);
                     } catch(e){}
                 }
